@@ -1,15 +1,15 @@
 <template>
-  <div>
-
-  </div>
+  <ChatsView />
 </template>
 
 <script>
+import ChatsView from './components/ChatsView.vue'
   export default {
-    
+    components: {
+      ChatsView
+    }
   }
 </script>
 
-<style lang="scss" scoped>
-
+<style scoped>
 </style>
