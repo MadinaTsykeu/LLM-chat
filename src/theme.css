@@ -1,12 +1,12 @@
 * {
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
 }
 
 body {
-    background-color: #F7F8FA;
-    padding: 10px;
-    box-sizing: border-box;
+  background-color: #f7f8fa;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 html,
@@ -15,4 +15,3 @@ body {
   margin: 0;
   overflow: hidden;
 }
-

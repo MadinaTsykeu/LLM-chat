@@ -1,151 +1,147 @@
 :root {
-    /* цвет */
-    --primary-100: #2388FF;
-    --primary-200: #FF2D46;
-    --primary-300: #FFC700;
-    --primary-400: #63DE77;
+  /* цвет */
+  --primary-100: #2388ff;
+  --primary-200: #ff2d46;
+  --primary-300: #ffc700;
+  --primary-400: #63de77;
 
-    --secondary-100: #1777E7;
-    --secondary-200: #EAF4FF;
-    --secondary-300: #DE1F35;
-    --secondary-400: #FFE8EA;
-    --secondary-500: #E79800;
-    --secondary-600: #FFF9E5;
-    --secondary-700: #37C972;
-    --secondary-800: #E5F8E8;
+  --secondary-100: #1777e7;
+  --secondary-200: #eaf4ff;
+  --secondary-300: #de1f35;
+  --secondary-400: #ffe8ea;
+  --secondary-500: #e79800;
+  --secondary-600: #fff9e5;
+  --secondary-700: #37c972;
+  --secondary-800: #e5f8e8;
 
-    --neutral-100: #FFFFFF;
-    --neutral-200: #F8FAFF;
-    --neutral-300: #F1F3F7;
-    --neutral-400: #E1E4ED;
-    --neutral-500: #B4B9C9;
-    --neutral-600: #6D758F;
-    --neutral-700: #353E5C;     
-    --neutral-800: #19213D;
+  --neutral-100: #ffffff;
+  --neutral-200: #f8faff;
+  --neutral-300: #f1f3f7;
+  --neutral-400: #e1e4ed;
+  --neutral-500: #b4b9c9;
+  --neutral-600: #6d758f;
+  --neutral-700: #353e5c;
+  --neutral-800: #19213d;
 
-    --light-100: #FFFFFF66;
-    --light-200: #FFFFFF80;
-    --light-300: #FFFFFFA6;
-    --light-400: #FFFFFFCC;   
-    --dark-100: #19213D66;
-    --dark-200: #19213D80;     
-    --dark-300: #19213DA6;
-    --dark-400: #19213DCC;
+  --light-100: #ffffff66;
+  --light-200: #ffffff80;
+  --light-300: #ffffffa6;
+  --light-400: #ffffffcc;
+  --dark-100: #19213d66;
+  --dark-200: #19213d80;
+  --dark-300: #19213da6;
+  --dark-400: #19213dcc;
 
-    /* градиенты */
-    --red-gradient: linear-gradient(47deg, #DF001B -1.87%, #FFDDDF 101.87%);
-    --blue-gradient: linear-gradient(45deg, #0075FF 0%, #D0EBFF 100%);
-    --yellow-gradient: linear-gradient(45deg, #FF9416 0%, #FFE03A 100%);
-    --green-gradient: linear-gradient(45deg, #3ACD52 0%, #7DFFA2 100%);
+  /* градиенты */
+  --red-gradient: linear-gradient(47deg, #df001b -1.87%, #ffdddf 101.87%);
+  --blue-gradient: linear-gradient(45deg, #0075ff 0%, #d0ebff 100%);
+  --yellow-gradient: linear-gradient(45deg, #ff9416 0%, #ffe03a 100%);
+  --green-gradient: linear-gradient(45deg, #3acd52 0%, #7dffa2 100%);
 
-    /* тени */
-    --shadow-neutral-small: 0px 1px 3px 0px #19213D1A;
-    --shadow-neutral-regular: 0px 2px 4px 0px #19213D14;
-    --shadow-neutral-medium: 0px 8px 15px 0px #19213D1A;
-    --shadow-neutral-large: 0px 8px 24px 0px #19213D1F;
+  /* тени */
+  --shadow-neutral-small: 0px 1px 3px 0px #19213d1a;
+  --shadow-neutral-regular: 0px 2px 4px 0px #19213d14;
+  --shadow-neutral-medium: 0px 8px 15px 0px #19213d1a;
+  --shadow-neutral-large: 0px 8px 24px 0px #19213d1f;
 
-    --shadow-primary-small: 0px 0px 2px 0px #4D91E13B;
-    --shadow-primary-regular: 0px 4px 8px 0px #4D91E11A;
-    --shadow-primary-medium: 0px 8px 15px 0px #4D91E11A;
-    --shadow-primary-large: 0px 8px 24px 0px #4D91E11A;
+  --shadow-primary-small: 0px 0px 2px 0px #4d91e13b;
+  --shadow-primary-regular: 0px 4px 8px 0px #4d91e11a;
+  --shadow-primary-medium: 0px 8px 15px 0px #4d91e11a;
+  --shadow-primary-large: 0px 8px 24px 0px #4d91e11a;
 
-    --shadow-secondary-small: 0px 0px 2px 0px #9B202F1A;
-    --shadow-secondary-regular: 0px 4px 8px 0px #9B202F1A;
-    --shadow-secondary-medium: 0px 8px 15px 0px #9B202F1A;
-    --shadow-secondary-large: 0px 8px 24px 0px #9B202F24;
+  --shadow-secondary-small: 0px 0px 2px 0px #9b202f1a;
+  --shadow-secondary-regular: 0px 4px 8px 0px #9b202f1a;
+  --shadow-secondary-medium: 0px 8px 15px 0px #9b202f1a;
+  --shadow-secondary-large: 0px 8px 24px 0px #9b202f24;
 
+  /* кнопки */
+  --btn-primary-bg: linear-gradient(180deg, #2b7afb 0%, #2174fd 100%, #213bfd 100%);
+  --btn-primary-border: linear-gradient(180deg, #174bd2 0%, #1b5ac2 100%);
+  --btn-primary-shadow:
+    0px 2px 1px 0px #ffffff38 inset, 0px -2px 0.3px 0px #0e387d2e inset, 0px 2px 5px 0px #1458c92b;
 
-    /* кнопки */
-    --btn-primary-bg: linear-gradient(180deg, #2B7AFB 0%, #2174FD 100%, #213BFD 100%);
-    --btn-primary-border: linear-gradient(180deg, #174BD2 0%, #1B5AC2 100%);
-    --btn-primary-shadow: 
-    0px 2px 1px 0px #FFFFFF38 inset,
-    0px -2px 0.3px 0px #0E387D2E inset,
-    0px 2px 5px 0px #1458C92B;
+  --btn-secondary-bg: #f7f8fa;
+  --btn-secondary-border: #f0f2f5;
+  --btn-secondary-shadow: 0px 1px 3px 0px #19213d1a;
 
-    --btn-secondary-bg: #F7F8FA;
-    --btn-secondary-border: #F0F2F5;
-    --btn-secondary-shadow: 0px 1px 3px 0px #19213D1A;
+  --btn-tertiary-bg: #f6faff;
 
-    --btn-tertiary-bg: #F6FAFF;
+  --btn-height-sm: 32px;
+  --btn-height-df: 42px;
 
+  --btn-padding-x: 16px;
 
-    --btn-height-sm: 32px;
-    --btn-height-df: 42px;
+  --btn-padding-y-sm: 8px;
+  --btn-padding-y-df: 12px;
 
-    --btn-padding-x: 16px;
+  --btn-radius: 8px;
 
-    --btn-padding-y-sm: 8px;
-    --btn-padding-y-df: 12px;
-
-    --btn-radius: 8px;
-
-    --btn-gap-sm: 8px;
-    --btn-gap-df: 12px;
+  --btn-gap-sm: 8px;
+  --btn-gap-df: 12px;
 }
 
-    /* шрифты */
-    .d-10 {
-        font-size: 72px;
-        line-height: 115%;
-    }
+/* шрифты */
+.d-10 {
+  font-size: 72px;
+  line-height: 115%;
+}
 
-    .d-9 {
-        font-size: 60px;
-        line-height: 115%;
-    }
+.d-9 {
+  font-size: 60px;
+  line-height: 115%;
+}
 
-    .d-8 {
-        font-size: 48px;
-        line-height: 125%;
-    }   
+.d-8 {
+  font-size: 48px;
+  line-height: 125%;
+}
 
-    .d-7 {
-        font-size: 36px;
-        line-height: 125%;
-    }
+.d-7 {
+  font-size: 36px;
+  line-height: 125%;
+}
 
-    .d-6 {
-        font-size: 30px;
-        line-height: 125%;
-    }
+.d-6 {
+  font-size: 30px;
+  line-height: 125%;
+}
 
-    .d-5 {
-        font-size: 24px;
-        line-height: 125%;
-    }
+.d-5 {
+  font-size: 24px;
+  line-height: 125%;
+}
 
-    .d-4 {
-        font-size: 20px;
-        line-height: 125%;
-    }
+.d-4 {
+  font-size: 20px;
+  line-height: 125%;
+}
 
-    .d-3 {
-        font-size: 18px;
-        line-height: 125%;
-    }
+.d-3 {
+  font-size: 18px;
+  line-height: 125%;
+}
 
-    .d-2 {
-        font-size: 16px;
-        line-height: 125%;
-    }
+.d-2 {
+  font-size: 16px;
+  line-height: 125%;
+}
 
-    .d-1 {
-        font-size: 12px;
-        line-height: 125%;
-    }
+.d-1 {
+  font-size: 12px;
+  line-height: 125%;
+}
 
-    .p-large {
-        font-size: 18px;
-        line-height: 150%;
-    }
+.p-large {
+  font-size: 18px;
+  line-height: 150%;
+}
 
-    .p-default {
-        font-size: 16px;
-        line-height: 150%;
-    }
+.p-default {
+  font-size: 16px;
+  line-height: 150%;
+}
 
-    .p-small {
-        font-size: 14px;
-        line-height: 150%;
-    }
+.p-small {
+  font-size: 14px;
+  line-height: 150%;
+}
