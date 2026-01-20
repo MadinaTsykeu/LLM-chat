@@ -3,14 +3,18 @@
         <img :src="BackgroundMain" alt="BackgroundMain" class="content-accent" />
         <div class="main-card">
             <img :src="BackgroundChat" alt="BackgroundChat" class="card-accent" />
-            <h2>Welcome back, Mauro</h2>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed</p>
+            <div class="main-card-inner">
+                <h2 class="d-4">Welcome back, Mauro</h2>
+                <p class="p-small">Lorem ipsum dolor sit amet consectetur adipisicing elit sed</p>
 
-            <div class="box-wrapper">
-                <input class="box-wrapper-input" type="text" placeholder="How can I help you?" />
-                <button class="box-wrapper-button">
-                    <img :src="SendIcon" alt="Send" />
-                </button>
+                <div class="box-wrapper">
+                    <input class="box-wrapper-input p-small" type="text" placeholder="How can I help you?" />
+                    <UiButton variant="primary" size="df" class="box-send-btn">
+                        <template #left>
+                            <SendIcon :width="20" :height="20" fill="currentColor" />
+                        </template>
+                    </UiButton>
+                </div>
             </div>
         </div>
     </div>
@@ -20,6 +24,7 @@
 import SendIcon from '@/assets/icons/Send.svg';
 import BackgroundChat from '@/assets/icons/BackgroundChat.png';
 import BackgroundMain from '@/assets/icons/BackgroundMain.png';
+import UiButton from '../shared/UiButton.vue';
 </script>
 
 <style scoped>
@@ -54,18 +59,15 @@ import BackgroundMain from '@/assets/icons/BackgroundMain.png';
     transform: translateX(-50%);
     width: 700px;
     height: auto;
+    z-index: 0;
 }
 
-.main-card>*:not(.card-accent) {
+.main-card-inner {
     position: relative;
     z-index: 1;
-}
-
-.main-card>h2,
-.main-card>p,
-.main-card>.box-wrapper {
-    position: relative;
-    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .main-card {
@@ -83,26 +85,22 @@ import BackgroundMain from '@/assets/icons/BackgroundMain.png';
     align-items: center;
     padding: 48px 32px;
     box-sizing: border-box;
-    border: 1px solid rgba(227, 230, 234, 1);
+    border: 1px solid var(--neutral-400);
     border-radius: 16px;
-    box-shadow: 0px 2px 4px 0px rgba(25, 33, 61, 0.08);
-    background: rgba(255, 255, 255, 0.92);
+    box-shadow: var(--shadow-neutral-regular);
+    background: var(--light-400);
     backdrop-filter: blur(8px);
 }
 
 .main-card h2 {
-
-    font-size: 22px;
     font-weight: 500;
+    color: var(--neutral-800);
     margin: 0;
-    color: #19213D;
-
 }
 
 .main-card p {
     font-weight: 400;
-    font-size: 14px;
-    color: #666F8D;
+    color: var(--neutral-600);
     margin-top: 6px;
     margin-bottom: 24px;
 }
@@ -112,20 +110,12 @@ import BackgroundMain from '@/assets/icons/BackgroundMain.png';
     width: 100%;
     align-items: center;
     padding: 8px;
-    border: 1px solid #D1D5DB;
+    border: 1px solid var(--neutral-400);
     border-radius: 12px;
-    background: #fff;
+    background: var(--neutral-100);
     display: flex;
     gap: 8px;
     transition: transform 0.12s ease, filter 0.12s ease;
-}
-
-.box-wrapper-button:hover {
-    filter: brightness(1.03);
-}
-
-.box-wrapper-button:active {
-    transform: translateY(1px);
 }
 
 .box-wrapper-input {
@@ -135,33 +125,16 @@ import BackgroundMain from '@/assets/icons/BackgroundMain.png';
     border-radius: 8px;
     font-size: 14px;
     font-weight: 400;
-    color: #666F8D;
-
+    color: var(--neutral-600);
 }
 
 .box-wrapper-input:focus {
     outline: none;
 }
 
-.box-wrapper-button {
-    width: 42px;
-    height: 42px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background:
-        linear-gradient(180deg,
-            rgba(43, 122, 251, 1) 0%,
-            rgba(33, 116, 253, 1) 100%) padding-box,
-        linear-gradient(180deg,
-            rgba(23, 75, 210, 1) 0%,
-            rgba(27, 90, 194, 1) 100%) border-box;
-    border: 1px solid transparent;
-
-    box-shadow:
-        inset 0px 2px 1px rgba(255, 255, 255, 0.22),
-        inset 0px -2px 0.3px rgba(14, 56, 125, 0.18),
-        0px 2px 5px rgba(20, 88, 201, 0.17);
+.box-send-btn {
+    width: var(--btn-height-df);
+    padding-left: 0;
+    padding-right: 0;
 }
 </style>

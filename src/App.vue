@@ -2,14 +2,6 @@
   <ChatsView />
 </template>
 
-<script>
+<script setup>
 import ChatsView from './components/ChatsView.vue'
-  export default {
-    components: {
-      ChatsView
-    }
-  }
 </script>
-
-<style scoped>
-</style>

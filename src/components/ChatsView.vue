@@ -20,8 +20,8 @@ import MainCard from './chats/MainCard.vue';
     flex-direction: column;
     border-radius: 16px;
     padding-top: 16px;
-    background-color: #FFFFFF;
-    border: 1px solid #F0F2F5;
-    box-shadow: 0px 1px 3px 0px #19213D1A;
+    background-color: var(--neutral-100);
+    border: 1px solid var(--neutral-300);
+    box-shadow: var(--shadow-neutral-small);
 }
 </style>
