@@ -1,15 +1,7 @@
 <template>
-  <div>
-
-  </div>
+  <ChatsView />
 </template>
 
-<script>
-  export default {
-    
-  }
+<script setup>
+import ChatsView from './components/ChatsView.vue';
 </script>
-
-<style lang="scss" scoped>
-
-</style>
