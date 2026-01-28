@@ -3,7 +3,7 @@
     <h3 class="main-header-button d-2">Chats</h3>
     <UiButton variant="primary" size="sm">
       <template #left>
-        <ElementIcon :width="9" :height="9" fill="currentColor" />
+        <ElementIcon fill="currentColor" />
       </template>
       New Chat
     </UiButton>

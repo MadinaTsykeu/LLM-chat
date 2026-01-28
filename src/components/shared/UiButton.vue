@@ -1,9 +1,14 @@
 <template>
-  <button class="ui-btn" :class="[
-    `ui-btn-${variant}`,
-    `ui-btn-${size}`,
-    { 'ui-btn--icon-only': $slots.left && !$slots.default && !$slots.right },
-  ]" :type="type" :disabled="disabled">
+  <button
+    class="ui-btn"
+    :class="[
+      `ui-btn-${variant}`,
+      `ui-btn-${size}`,
+      { 'ui-btn--icon-only': $slots.left && !$slots.default && !$slots.right },
+    ]"
+    :type="type"
+    :disabled="disabled"
+  >
     <span v-if="$slots.left" class="ui-btn__icon ui-btn__icon--left" aria-hidden="true">
       <slot name="left" />
     </span>
@@ -22,10 +27,10 @@ type TButtonSize = 'sm' | 'df';
 type TButtonType = 'button' | 'submit' | 'reset';
 
 interface IButtonProps {
-  variant?: TButtonVariant
-  size?: TButtonSize
-  type?: TButtonType
-  disabled?: boolean
+  variant?: TButtonVariant;
+  size?: TButtonSize;
+  type?: TButtonType;
+  disabled?: boolean;
 }
 
 const props = withDefaults(defineProps<IButtonProps>(), {
@@ -33,9 +38,9 @@ const props = withDefaults(defineProps<IButtonProps>(), {
   size: 'sm',
   type: 'button',
   disabled: false,
-})
+});
 
-const { variant, size, type, disabled } = props
+const { variant, size, type, disabled } = props;
 </script>
 
 <style scoped>
