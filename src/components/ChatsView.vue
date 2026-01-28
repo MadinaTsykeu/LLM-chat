@@ -22,5 +22,6 @@ import MainCard from './chats/MainCard.vue';
   background-color: var(--neutral-100);
   border: 1px solid var(--neutral-300);
   box-shadow: var(--shadow-neutral-small);
+  flex: 1;
 }
 </style>
