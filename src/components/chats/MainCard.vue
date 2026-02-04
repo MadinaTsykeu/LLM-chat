@@ -21,9 +21,9 @@
 </template>
 
 <script setup lang="ts">
-import SendIcon from '@/assets/icons/Send.svg';
-import BackgroundChat from '@/assets/icons/BackgroundChat.png';
-import BackgroundMain from '@/assets/icons/BackgroundMain.png';
+import SendIcon from '@icons/Send.svg';
+import BackgroundChat from '@icons/BackgroundChat.png';
+import BackgroundMain from '@icons/BackgroundMain.png';
 import UiButton from '../shared/UiButton.vue';
 </script>
 
@@ -40,6 +40,7 @@ import UiButton from '../shared/UiButton.vue';
   padding: 40px 0;
   margin: 0 auto;
   box-sizing: border-box;
+  padding: 40px 24px;
 }
 
 .content-accent {
@@ -138,5 +139,39 @@ import UiButton from '../shared/UiButton.vue';
   width: var(--btn-height-df);
   padding-left: 0;
   padding-right: 0;
+}
+
+@media (max-width: 1100px) {
+  .main-content {
+    padding: 24px 16px; 
+  }
+
+  .main-card {
+    padding: 24px 16px; 
+  }
+
+  .card-accent {
+    width: 500px; 
+  }
+}
+
+@media (max-width: 768px) {
+  .card-accent {
+    width: 400px;
+  }
+}
+
+@media (max-width: 390px) {
+  .main-content {
+    padding: 20px 12px;
+  }
+
+  .main-card {
+    padding: 20px 12px;
+  }
+
+  .card-accent {
+    width: 350px;
+  }
 }
 </style>

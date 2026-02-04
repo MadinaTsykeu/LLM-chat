@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-type TButtonVariant = 'primary' | 'secondary' | 'tertiary';
+type TButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'icon';
 type TButtonSize = 'sm' | 'df';
 type TButtonType = 'button' | 'submit' | 'reset';
 
@@ -33,14 +33,12 @@ interface IButtonProps {
   disabled?: boolean;
 }
 
-const props = withDefaults(defineProps<IButtonProps>(), {
+withDefaults(defineProps<IButtonProps>(), {
   variant: 'primary',
   size: 'sm',
   type: 'button',
   disabled: false,
 });
-
-const { variant, size, type, disabled } = props;
 </script>
 
 <style scoped>
@@ -126,5 +124,17 @@ const { variant, size, type, disabled } = props;
 
 .ui-btn:active:not(:disabled) {
   transform: translateY(1px);
+}
+
+.ui-btn-icon {
+  background: transparent;
+  box-shadow: none;
+}
+
+.ui-btn-icon:hover:not(:disabled) {
+  background: var(--btn-secondary-bg);
+  border: 1px solid var(--btn-secondary-border);
+  box-shadow: var(--btn-secondary-shadow);
+  color: var(--neutral-800);
 }
 </style>

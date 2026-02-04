@@ -1,13 +1,21 @@
 <template>
   <div class="main">
-    <MainHeader />
+    <MainHeader @openSidebar="onOpenSidebar"/>
     <MainCard />
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import MainHeader from './chats/MainHeader.vue';
 import MainCard from './chats/MainCard.vue';
+
+const emit = defineEmits<{
+  (e: 'openSidebar'): void
+}>()
+
+function onOpenSidebar() {
+  emit('openSidebar')
+}
 </script>
 
 <style scoped>
