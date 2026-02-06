@@ -1,21 +1,17 @@
 <template>
   <header class="main-header">
-    <UiButton variant="icon" size="sm" @click="$emit('openSidebar')" class="main-icon">
+    <UiButton v-if="!breakpoint.md.value" variant="icon" size="sm" @click="open">
       <template #left>
         <LeftIcon />
       </template>
     </UiButton>
-    <h3 class="main-header-button d-2">Chats</h3>
-    <UiButton variant="primary" size="sm" class="btn">
+    <h3 class="main-header-button d-2" v-if="breakpoint.md.value">Chats</h3>
+    <UiButton variant="primary" size="sm" :only-icon="!breakpoint.md.value">
       <template #left>
-        <ElementIcon fill="currentColor" />
+        <ElementIcon />
       </template>
-      New Chat
-    </UiButton>
-    <UiButton variant="primary" size="sm" class="btn-icon">
-      <template #left>
-        <ElementIcon fill="currentColor" />
-      </template>
+
+      <span v-if="breakpoint.md.value" class="btn-text"> New Chat </span>
     </UiButton>
   </header>
 </template>
@@ -24,10 +20,12 @@
 import ElementIcon from '@icons/Element.svg';
 import UiButton from '../shared/UiButton.vue';
 import LeftIcon from '@icons/Left.svg';
+import { useAppBreakpoints } from '@/composables';
+import { useSidebarState } from '@/composables'
 
-defineEmits<{
-  (e: 'openSidebar'): void
-}>()
+const { open } = useSidebarState()
+
+const breakpoint = useAppBreakpoints();
 </script>
 
 <style scoped>
@@ -44,33 +42,4 @@ defineEmits<{
 .main-header-button {
   font-weight: 500;
 }
-
-.main-icon {
-  display: none;
-}
-
-.btn-icon {
-  display: none;
-}
-
-
-@media (max-width: 768px) {
-  .main-icon {
-    display: block;
-  }
-
-  .btn-icon {
-    display: inline-block;
-  }
-
-  .main-header-button {
-    display: none;
-  }
-
-  .btn {
-    display: none;
-  }
-
-}
-
 </style>

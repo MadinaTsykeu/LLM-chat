@@ -10,7 +10,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '@icons': '/src/assets/icons',
+      '@icons': fileURLToPath(new URL('./src/assets/icons', import.meta.url)),
     },
   },
 });

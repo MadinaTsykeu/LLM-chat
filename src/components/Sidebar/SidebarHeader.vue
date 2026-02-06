@@ -26,25 +26,24 @@ import LeftIcon from '@icons/Left.svg';
 import UiButton from '../shared/UiButton.vue';
 
 interface Props {
-  collapsed: boolean,
-  mobileOpen: boolean
+  collapsed: boolean;
+  mobileOpen: boolean;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  (e: 'toggle'): void,
-  (e: 'closeSidebar'): void
-}>()
+  (e: 'toggle'): void;
+  (e: 'closeSidebar'): void;
+}>();
 
 function onActionClick() {
   if (props.mobileOpen) {
-    emit('closeSidebar')
+    emit('closeSidebar');
   } else {
-    emit('toggle')
-  } 
+    emit('toggle');
+  }
 }
-
 </script>
 
 <style scoped>
@@ -78,7 +77,7 @@ function onActionClick() {
   align-items: center;
 }
 
-.sidebar-header.collapsed .sidebar-actions{
+.sidebar-header.collapsed .sidebar-actions {
   flex-direction: column;
 }
 
@@ -92,7 +91,9 @@ function onActionClick() {
 .username {
   white-space: nowrap;
   overflow: hidden;
-  transition: opacity 0.25s ease, width 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    width 0.25s ease;
 }
 
 .sidebar-header.collapsed .sidebar-user {

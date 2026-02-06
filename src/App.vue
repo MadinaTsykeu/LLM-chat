@@ -1,35 +1,17 @@
 <template>
   <div class="app-container">
-    <div
-      v-if="isSidebarOpen"
-      class="overlay"
-      @click="closeSidebar"
-      aria-hidden="true"
-    />
-    <Sidebar :isSidebarOpen="isSidebarOpen"
-      @close="closeSidebar" />
-    <ChatsView @openSidebar="openSidebar"/>
+    <div v-if="isOpen" class="overlay" @click="close" aria-hidden="true" />
+    <Sidebar />
+    <ChatsView />
   </div>
 </template>
 
 <script setup>
 import ChatsView from './components/ChatsView.vue';
-import Sidebar from './components/Sidebar/Sidebar.vue';
-import { ref } from 'vue';
+import { Sidebar } from './components/Sidebar';
+import { useSidebarState } from '@/composables';
 
-const isSidebarOpen = ref(false);
-
-function openSidebar() {
-  isSidebarOpen.value = true;
-}
-
-function closeSidebar() {
-  isSidebarOpen.value = false;
-}
-
-function toggleSidebar() {
-  isSidebarOpen.value = !isSidebarOpen.value; 
-}
+const { isOpen, close } = useSidebarState();
 </script>
 
 <style>
@@ -49,7 +31,7 @@ function toggleSidebar() {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.45);
-    z-index: 10; 
+    z-index: 10;
   }
 
   .app-container {

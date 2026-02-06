@@ -1,6 +1,6 @@
 <template>
   <div class="main">
-    <MainHeader @openSidebar="onOpenSidebar"/>
+    <MainHeader @openSidebar="onOpenSidebar" />
     <MainCard />
   </div>
 </template>
@@ -10,11 +10,11 @@ import MainHeader from './chats/MainHeader.vue';
 import MainCard from './chats/MainCard.vue';
 
 const emit = defineEmits<{
-  (e: 'openSidebar'): void
-}>()
+  (e: 'openSidebar'): void;
+}>();
 
 function onOpenSidebar() {
-  emit('openSidebar')
+  emit('openSidebar');
 }
 </script>
 

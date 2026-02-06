@@ -1,11 +1,7 @@
 <template>
   <button
     class="ui-btn"
-    :class="[
-      `ui-btn-${variant}`,
-      `ui-btn-${size}`,
-      { 'ui-btn--icon-only': $slots.left && !$slots.default && !$slots.right },
-    ]"
+    :class="[`ui-btn-${variant}`, `ui-btn-${size}`, { 'ui-btn--icon-only': onlyIcon }]"
     :type="type"
     :disabled="disabled"
   >
@@ -31,6 +27,7 @@ interface IButtonProps {
   size?: TButtonSize;
   type?: TButtonType;
   disabled?: boolean;
+  onlyIcon?: boolean;
 }
 
 withDefaults(defineProps<IButtonProps>(), {
@@ -38,6 +35,7 @@ withDefaults(defineProps<IButtonProps>(), {
   size: 'sm',
   type: 'button',
   disabled: false,
+  onlyIcon: false,
 });
 </script>
 
@@ -79,8 +77,7 @@ withDefaults(defineProps<IButtonProps>(), {
 
 .ui-btn-sm {
   height: var(--btn-height-sm);
-  padding-top: var(--btn-padding-y-sm);
-  padding-bottom: var(--btn-padding-y-sm);
+  padding: var(--btn-padding-y-sm);
   gap: var(--btn-gap-sm);
 }
 
@@ -113,8 +110,7 @@ withDefaults(defineProps<IButtonProps>(), {
 
 .ui-btn--icon-only.ui-btn-sm {
   width: var(--btn-height-sm);
-  padding-left: 0;
-  padding-right: 0;
+  padding: 0;
   gap: 0;
 }
 

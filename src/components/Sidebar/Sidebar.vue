@@ -1,6 +1,11 @@
 <template>
-  <aside class="sidebar" :class="{ collapsed: isCollapsed, 'mobile-open': props.isSidebarOpen }" >
-    <SidebarHeader :collapsed="isCollapsed" @toggle="toggleSidebar" :mobileOpen="props.isSidebarOpen" @closeSidebar="emit('close')"/>
+  <aside class="sidebar" :class="{ collapsed: isCollapsed, 'mobile-open': isOpen }">
+    <SidebarHeader
+      :collapsed="isCollapsed"
+      @toggle="toggleCollapse"
+      :mobileOpen="isOpen"
+      @closeSidebar="close"
+    />
     <div class="sidebar-history">
       <h2 class="sidebar-title d-1">chat history</h2>
       <div class="sidebar-chat-list">
@@ -9,16 +14,17 @@
       </div>
     </div>
     <div class="sidebar-bottom">
-      <UiButton variant="primary" size="sm" class="sidebar-new-chat-btn d-2" v-if="!isCollapsed">
+      <UiButton
+        variant="primary"
+        size="sm"
+        class="sidebar-new-chat-btn d-2"
+        :only-icon="isCollapsed"
+      >
         <template #left>
           <ElementIcon fill="currentColor" />
         </template>
-        <h3 class="d-2 start-chat">Start new chat</h3>
-      </UiButton>
-      <UiButton variant="primary" size="sm" class="d-2" v-else>
-        <template #left>
-          <ElementIcon fill="currentColor" />
-        </template>
+
+        <h3 v-if="!isCollapsed" class="d-2 start-chat">Start new chat</h3>
       </UiButton>
     </div>
   </aside>
@@ -29,23 +35,9 @@ import ElementIcon from '@icons/Element.svg';
 import UiButton from '../shared/UiButton.vue';
 import SidebarHeader from './SidebarHeader.vue';
 import SidebarChatButton from './SidebarChatButton.vue';
-import { ref } from 'vue';
+import { useSidebarState } from '@/composables'
 
-const isCollapsed = ref(false);
-
-function toggleSidebar() {
-  isCollapsed.value = !isCollapsed.value
-}
-
-interface Props {
-  isSidebarOpen: boolean
-}
-
-const props = defineProps<Props>()
-
-const emit = defineEmits<{
-  (e: 'close'): void
-}>()
+const { isOpen, isCollapsed, toggleCollapse, close } = useSidebarState()
 </script>
 
 <style scoped>
@@ -103,14 +95,22 @@ const emit = defineEmits<{
   height: 42px;
 }
 
+.sidebar.collapsed .sidebar-new-chat-btn {
+  width: var(--btn-height-sm);
+  height: var(--btn-height-sm);
+  align-self: center;
+}
+
 .btn-new {
   font-weight: 500;
 }
 
 .start-chat {
-    white-space: nowrap;
+  white-space: nowrap;
   overflow: hidden;
-  transition: opacity 0.25s ease, width 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    width 0.25s ease;
 }
 
 @media (max-width: 768px) {

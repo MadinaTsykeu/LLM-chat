@@ -143,15 +143,15 @@ import UiButton from '../shared/UiButton.vue';
 
 @media (max-width: 1100px) {
   .main-content {
-    padding: 24px 16px; 
+    padding: 24px 16px;
   }
 
   .main-card {
-    padding: 24px 16px; 
+    padding: 24px 16px;
   }
 
   .card-accent {
-    width: 500px; 
+    width: 500px;
   }
 }
 
