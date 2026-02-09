@@ -1,1 +1,2 @@
-export { default as Sidebar } from './Sidebar.vue';
+export { default as Sidebar } from './ui/Sidebar.vue'
+export * from './model/useSidebarState'

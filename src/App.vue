@@ -8,8 +8,8 @@
 
 <script setup>
 import ChatsView from './components/ChatsView.vue';
-import { Sidebar } from './components/Sidebar';
-import { useSidebarState } from '@/composables';
+import { Sidebar } from '@/components/Sidebar'
+import { useSidebarState } from '@/components/Sidebar'
 
 const { isOpen, close } = useSidebarState();
 </script>

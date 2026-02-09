@@ -1,8 +1,8 @@
 <template>
-  <div class="sidebar-header" :class="{ collapsed: collapsed }">
+  <div class="sidebar-header" :class="{ collapsed: isCollapsedView }">
     <div class="sidebar-user">
       <img :src="Avatar" alt="Avatar" class="avatar-img" />
-      <h3 class="username d-2" :class="{ hidden: collapsed }">Mauro Sicard</h3>
+      <h3 class="username d-2" :class="{ hidden: isCollapsedView }">Mauro Sicard</h3>
     </div>
     <div class="sidebar-actions">
       <UiButton size="sm" variant="icon">
@@ -20,30 +20,29 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import Avatar from '@/assets/image/Avatar.jpg';
 import SettingsIcon from '@icons/Settings.svg';
 import LeftIcon from '@icons/Left.svg';
-import UiButton from '../shared/UiButton.vue';
+import UiButton from '@/components/shared/UiButton.vue';
 
-interface Props {
-  collapsed: boolean;
-  mobileOpen: boolean;
-}
+import { useSidebarState } from '@/components/Sidebar'
+import { useAppBreakpoints } from '@/composables/useAppBreakpoints'
 
-const props = defineProps<Props>();
 
-const emit = defineEmits<{
-  (e: 'toggle'): void;
-  (e: 'closeSidebar'): void;
-}>();
+const { isOpen, close, toggleOpen } = useSidebarState()
+const { md } = useAppBreakpoints()
 
 function onActionClick() {
-  if (props.mobileOpen) {
-    emit('closeSidebar');
+  if (isMobile.value) {
+    close()
   } else {
-    emit('toggle');
+    toggleOpen()
   }
 }
+
+const isMobile = computed(() => !md.value)
+const isCollapsedView = computed(() => !isOpen.value && !isMobile.value)
 </script>
 
 <style scoped>
@@ -71,23 +70,6 @@ function onActionClick() {
   gap: 12px;
 }
 
-.sidebar-header.collapsed {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.sidebar-header.collapsed .sidebar-actions {
-  flex-direction: column;
-}
-
-.hidden {
-  opacity: 0;
-  width: 0;
-  margin: 0;
-  padding: 0;
-}
-
 .username {
   white-space: nowrap;
   overflow: hidden;
@@ -96,9 +78,27 @@ function onActionClick() {
     width 0.25s ease;
 }
 
+.sidebar-header.collapsed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-header.collapsed .sidebar-actions {
+  flex-direction: column;
+}
+
 .sidebar-header.collapsed .sidebar-user {
   flex-direction: column;
   align-items: center;
   gap: 0;
+}
+
+.hidden {
+  opacity: 0;
+  width: 0;
+  margin: 0;
+  padding: 0;
 }
 </style>

@@ -1,11 +1,13 @@
 <template>
-  <aside class="sidebar" :class="{ collapsed: isCollapsed, 'mobile-open': isOpen }">
+  <aside class="sidebar" :class="{
+    'mobile-open': isOpen && isMobile,
+    'sidebar--collapsed': isCollapsedDesktop
+  }">
     <SidebarHeader
-      :collapsed="isCollapsed"
-      @toggle="toggleCollapse"
       :mobileOpen="isOpen"
       @closeSidebar="close"
     />
+
     <div class="sidebar-history">
       <h2 class="sidebar-title d-1">chat history</h2>
       <div class="sidebar-chat-list">
@@ -13,18 +15,18 @@
         <SidebarChatButton>Chat 2</SidebarChatButton>
       </div>
     </div>
+
     <div class="sidebar-bottom">
       <UiButton
         variant="primary"
         size="sm"
         class="sidebar-new-chat-btn d-2"
-        :only-icon="isCollapsed"
       >
         <template #left>
           <ElementIcon fill="currentColor" />
         </template>
 
-        <h3 v-if="!isCollapsed" class="d-2 start-chat">Start new chat</h3>
+        <h3 class="d-2 start-chat">Start new chat</h3>
       </UiButton>
     </div>
   </aside>
@@ -32,12 +34,34 @@
 
 <script setup lang="ts">
 import ElementIcon from '@icons/Element.svg';
-import UiButton from '../shared/UiButton.vue';
+import UiButton from '@/components/shared/UiButton.vue';
 import SidebarHeader from './SidebarHeader.vue';
 import SidebarChatButton from './SidebarChatButton.vue';
-import { useSidebarState } from '@/composables'
+import { useSidebarState } from '@/components/Sidebar'
+import { computed, onMounted, watch } from 'vue'
+import { useAppBreakpoints } from '@/composables/useAppBreakpoints'
 
-const { isOpen, isCollapsed, toggleCollapse, close } = useSidebarState()
+const { isOpen, close, open } = useSidebarState()
+const { md } = useAppBreakpoints()
+
+const isMobile = computed(() => !md.value)
+const isCollapsedDesktop = computed(() => !isOpen.value && !isMobile.value)
+
+onMounted(() => {
+  if (isMobile.value) {
+    close()
+  } else {
+    open()
+  }
+})
+
+watch(isMobile, (mobile) => {
+  if (mobile) {
+    close()
+  } else {
+    open()
+  }
+})
 </script>
 
 <style scoped>
@@ -52,10 +76,6 @@ const { isOpen, isCollapsed, toggleCollapse, close } = useSidebarState()
   transition: width 0.6s ease;
 }
 
-.sidebar.collapsed {
-  width: 70px;
-}
-
 .sidebar-history {
   flex: 1;
   margin-top: 40px;
@@ -63,12 +83,6 @@ const { isOpen, isCollapsed, toggleCollapse, close } = useSidebarState()
   min-height: 0;
   transition: opacity 0.6s ease;
   transition-delay: 0.3s;
-}
-
-.sidebar.collapsed .sidebar-history {
-  opacity: 0;
-  pointer-events: none;
-  transition-delay: 0s;
 }
 
 .sidebar-title {
@@ -95,12 +109,6 @@ const { isOpen, isCollapsed, toggleCollapse, close } = useSidebarState()
   height: 42px;
 }
 
-.sidebar.collapsed .sidebar-new-chat-btn {
-  width: var(--btn-height-sm);
-  height: var(--btn-height-sm);
-  align-self: center;
-}
-
 .btn-new {
   font-weight: 500;
 }
@@ -111,6 +119,46 @@ const { isOpen, isCollapsed, toggleCollapse, close } = useSidebarState()
   transition:
     opacity 0.25s ease,
     width 0.25s ease;
+}
+
+.sidebar.sidebar--collapsed {
+  width: 70px;
+}
+
+.sidebar.sidebar--collapsed .sidebar-history {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sidebar.sidebar--collapsed .sidebar-new-chat-btn {
+  width: var(--btn-height-sm);
+  height: var(--btn-height-sm);
+  align-self: center;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar.sidebar--collapsed .sidebar-bottom {
+  display: flex;
+  justify-content: center;
+}
+
+.sidebar.sidebar--collapsed .start-chat {
+  display: none;
+}
+
+.sidebar.sidebar--collapsed .sidebar-new-chat-btn :deep(.ui-btn__icon--left) {
+  margin: 0 !important;
+}
+
+.sidebar.sidebar--collapsed .sidebar-new-chat-btn :deep(.ui-btn__text) {
+  display: none !important;
+}
+
+.sidebar.sidebar--collapsed .sidebar-new-chat-btn :deep(svg) {
+  display: block;
 }
 
 @media (max-width: 768px) {
@@ -128,10 +176,6 @@ const { isOpen, isCollapsed, toggleCollapse, close } = useSidebarState()
 
   .sidebar.mobile-open {
     transform: translateX(0);
-  }
-
-  .sidebar.collapsed {
-    width: 296px;
   }
 }
 </style>
