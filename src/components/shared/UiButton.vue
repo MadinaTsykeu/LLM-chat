@@ -1,9 +1,10 @@
 <template>
-  <button class="ui-btn" :class="[
-    `ui-btn-${variant}`,
-    `ui-btn-${size}`,
-    { 'ui-btn--icon-only': $slots.left && !$slots.default && !$slots.right },
-  ]" :type="type" :disabled="disabled">
+  <button
+    class="ui-btn"
+    :class="[`ui-btn-${variant}`, `ui-btn-${size}`, { 'ui-btn--icon-only': onlyIcon }]"
+    :type="type"
+    :disabled="disabled"
+  >
     <span v-if="$slots.left" class="ui-btn__icon ui-btn__icon--left" aria-hidden="true">
       <slot name="left" />
     </span>
@@ -17,25 +18,25 @@
 </template>
 
 <script setup lang="ts">
-type TButtonVariant = 'primary' | 'secondary' | 'tertiary';
+type TButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'icon';
 type TButtonSize = 'sm' | 'df';
 type TButtonType = 'button' | 'submit' | 'reset';
 
 interface IButtonProps {
-  variant?: TButtonVariant
-  size?: TButtonSize
-  type?: TButtonType
-  disabled?: boolean
+  variant?: TButtonVariant;
+  size?: TButtonSize;
+  type?: TButtonType;
+  disabled?: boolean;
+  onlyIcon?: boolean;
 }
 
-const props = withDefaults(defineProps<IButtonProps>(), {
+withDefaults(defineProps<IButtonProps>(), {
   variant: 'primary',
   size: 'sm',
   type: 'button',
   disabled: false,
-})
-
-const { variant, size, type, disabled } = props
+  onlyIcon: false,
+});
 </script>
 
 <style scoped>
@@ -76,8 +77,7 @@ const { variant, size, type, disabled } = props
 
 .ui-btn-sm {
   height: var(--btn-height-sm);
-  padding-top: var(--btn-padding-y-sm);
-  padding-bottom: var(--btn-padding-y-sm);
+  padding: var(--btn-padding-y-sm);
   gap: var(--btn-gap-sm);
 }
 
@@ -110,8 +110,7 @@ const { variant, size, type, disabled } = props
 
 .ui-btn--icon-only.ui-btn-sm {
   width: var(--btn-height-sm);
-  padding-left: 0;
-  padding-right: 0;
+  padding: 0;
   gap: 0;
 }
 
@@ -121,5 +120,17 @@ const { variant, size, type, disabled } = props
 
 .ui-btn:active:not(:disabled) {
   transform: translateY(1px);
+}
+
+.ui-btn-icon {
+  background: transparent;
+  box-shadow: none;
+}
+
+.ui-btn-icon:hover:not(:disabled) {
+  background: var(--btn-secondary-bg);
+  border: 1px solid var(--btn-secondary-border);
+  box-shadow: var(--btn-secondary-shadow);
+  color: var(--neutral-800);
 }
 </style>

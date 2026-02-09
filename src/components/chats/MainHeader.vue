@@ -1,18 +1,31 @@
 <template>
   <header class="main-header">
-    <h3 class="main-header-button d-2">Chats</h3>
-    <UiButton variant="primary" size="sm">
+    <UiButton v-if="!md" variant="icon" size="sm" @click="open">
       <template #left>
-        <ElementIcon :width="9" :height="9" fill="currentColor" />
+        <LeftIcon />
       </template>
-      New Chat
+    </UiButton>
+    <h3 class="main-header-button d-2" v-if="md">Chats</h3>
+    <UiButton variant="primary" size="sm" :only-icon="!md">
+      <template #left>
+        <ElementIcon />
+      </template>
+
+      <span v-if="md" class="btn-text"> New Chat </span>
     </UiButton>
   </header>
 </template>
 
 <script setup lang="ts">
-import ElementIcon from '@/assets/icons/Element.svg';
+import ElementIcon from '@icons/Element.svg';
 import UiButton from '../shared/UiButton.vue';
+import LeftIcon from '@icons/Left.svg';
+import { useAppBreakpoints } from '@/composables';
+import { useSidebarState } from '@/components/Sidebar';
+
+const { open } = useSidebarState();
+
+const { md } = useAppBreakpoints();
 </script>
 
 <style scoped>
