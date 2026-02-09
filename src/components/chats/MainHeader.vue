@@ -21,9 +21,9 @@ import ElementIcon from '@icons/Element.svg';
 import UiButton from '../shared/UiButton.vue';
 import LeftIcon from '@icons/Left.svg';
 import { useAppBreakpoints } from '@/composables';
-import { useSidebarState } from '@/components/Sidebar'
+import { useSidebarState } from '@/components/Sidebar';
 
-const { open } = useSidebarState()
+const { open } = useSidebarState();
 
 const { md } = useAppBreakpoints();
 </script>

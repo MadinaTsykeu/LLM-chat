@@ -1,1 +1,1 @@
-export * from './useAppBreakpoints'
+export * from './useAppBreakpoints';

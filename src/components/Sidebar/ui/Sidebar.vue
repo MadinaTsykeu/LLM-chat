@@ -1,12 +1,12 @@
 <template>
-  <aside class="sidebar" :class="{
-    'mobile-open': isOpen && isMobile,
-    'sidebar--collapsed': isCollapsedDesktop
-  }">
-    <SidebarHeader
-      :mobileOpen="isOpen"
-      @closeSidebar="close"
-    />
+  <Teleport to="body">
+    <div v-if="isMobile && isOpen" class="sidebar-overlay" aria-hidden="true" @click="close" />
+  </Teleport>
+  <aside
+    class="sidebar"
+    :class="isMobile ? { 'mobile-open': isOpen } : { 'sidebar--collapsed': isCollapsedDesktop }"
+  >
+    <SidebarHeader />
 
     <div class="sidebar-history">
       <h2 class="sidebar-title d-1">chat history</h2>
@@ -17,11 +17,7 @@
     </div>
 
     <div class="sidebar-bottom">
-      <UiButton
-        variant="primary"
-        size="sm"
-        class="sidebar-new-chat-btn d-2"
-      >
+      <UiButton variant="primary" size="sm" class="sidebar-new-chat-btn d-2">
         <template #left>
           <ElementIcon fill="currentColor" />
         </template>
@@ -37,31 +33,24 @@ import ElementIcon from '@icons/Element.svg';
 import UiButton from '@/components/shared/UiButton.vue';
 import SidebarHeader from './SidebarHeader.vue';
 import SidebarChatButton from './SidebarChatButton.vue';
-import { useSidebarState } from '@/components/Sidebar'
-import { computed, onMounted, watch } from 'vue'
-import { useAppBreakpoints } from '@/composables/useAppBreakpoints'
+import { useSidebarState } from '@/components/Sidebar';
+import { computed, onMounted, watch } from 'vue';
+import { useAppBreakpoints } from '@/composables/useAppBreakpoints';
 
-const { isOpen, close, open } = useSidebarState()
-const { md } = useAppBreakpoints()
+const { isOpen, close, open } = useSidebarState();
+const { md } = useAppBreakpoints();
 
-const isMobile = computed(() => !md.value)
-const isCollapsedDesktop = computed(() => !isOpen.value && !isMobile.value)
+const isMobile = computed(() => !md.value);
+const isCollapsedDesktop = computed(() => !isOpen.value && !isMobile.value);
 
-onMounted(() => {
-  if (isMobile.value) {
-    close()
-  } else {
-    open()
-  }
-})
-
-watch(isMobile, (mobile) => {
-  if (mobile) {
-    close()
-  } else {
-    open()
-  }
-})
+watch(
+  isMobile,
+  (mobile) => {
+    if (mobile) close();
+    else open();
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped>
@@ -161,6 +150,10 @@ watch(isMobile, (mobile) => {
   display: block;
 }
 
+:global(.sidebar-overlay) {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
@@ -176,6 +169,14 @@ watch(isMobile, (mobile) => {
 
   .sidebar.mobile-open {
     transform: translateX(0);
+  }
+
+  :global(.sidebar-overlay) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 10;
   }
 }
 </style>

@@ -10,7 +10,7 @@
           <SettingsIcon />
         </template>
       </UiButton>
-      <UiButton size="sm" variant="icon" @click="onActionClick">
+      <UiButton size="sm" variant="icon" @click="toggleOpen">
         <template #left>
           <LeftIcon />
         </template>
@@ -20,29 +20,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed } from 'vue';
 import Avatar from '@/assets/image/Avatar.jpg';
 import SettingsIcon from '@icons/Settings.svg';
 import LeftIcon from '@icons/Left.svg';
 import UiButton from '@/components/shared/UiButton.vue';
 
-import { useSidebarState } from '@/components/Sidebar'
-import { useAppBreakpoints } from '@/composables/useAppBreakpoints'
+import { useSidebarState } from '@/components/Sidebar';
+import { useAppBreakpoints } from '@/composables/useAppBreakpoints';
 
+const { isOpen, close, toggleOpen } = useSidebarState();
+const { md } = useAppBreakpoints();
 
-const { isOpen, close, toggleOpen } = useSidebarState()
-const { md } = useAppBreakpoints()
-
-function onActionClick() {
-  if (isMobile.value) {
-    close()
-  } else {
-    toggleOpen()
-  }
-}
-
-const isMobile = computed(() => !md.value)
-const isCollapsedView = computed(() => !isOpen.value && !isMobile.value)
+const isMobile = computed(() => !md.value);
+const isCollapsedView = computed(() => !isOpen.value && !isMobile.value);
 </script>
 
 <style scoped>

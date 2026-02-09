@@ -11,10 +11,11 @@ export const BREAKPOINTS = {
 export function useAppBreakpoints() {
   const bp = useBreakpoints(BREAKPOINTS);
 
-  return {     
+  return {
     sm: bp.greaterOrEqual('sm'),
     md: bp.greaterOrEqual('md'),
     lg: bp.greaterOrEqual('lg'),
     xl: bp.greaterOrEqual('xl'),
-    xxl: bp.greaterOrEqual('xxl'), };
+    xxl: bp.greaterOrEqual('xxl'),
+  };
 }
