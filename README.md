@@ -1,3 +1,17 @@
+## Environment Variables
+
+Insert your OpenRouter API key
+Example .env content:
+
+```sh
+VITE_OPENROUTER_API_KEY=your_api_key_here
+VITE_OPENROUTER_MODEL=arcee-ai/trinity-large-preview:free
+VITE_OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+```
+
+You can obtain an API key at:
+https://openrouter.ai/
+
 # LLM-chat
 
 This template should help get you started developing with Vue 3 in Vite.

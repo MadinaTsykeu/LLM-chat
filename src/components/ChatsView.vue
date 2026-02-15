@@ -1,13 +1,18 @@
 <template>
   <div class="main">
     <MainHeader @openSidebar="onOpenSidebar" />
-    <MainCard />
+    <ChatFeed v-if="messages.length > 0" />
+    <MainCard v-else />
   </div>
 </template>
 
 <script setup lang="ts">
 import MainHeader from './chats/MainHeader.vue';
 import MainCard from './chats/MainCard.vue';
+import ChatFeed from './chats/ChatFeed.vue';
+import { useChatSession } from '@/composables/useChatSession';
+
+const { messages } = useChatSession();
 
 const emit = defineEmits<{
   (e: 'openSidebar'): void;
