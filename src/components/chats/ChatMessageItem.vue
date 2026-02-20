@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import type { chatMessage } from '@/entities/chat/types';
+import type { chatMessage } from '@/components/chats/types';
 import Avatar from '@/assets/image/Avatar.jpg';
 import Element from '@/assets/image/Element.jpg';
 

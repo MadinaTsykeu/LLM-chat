@@ -2,12 +2,14 @@
   <div class="app-container">
     <Sidebar />
     <ChatsView />
+    <AppErrorModal />
   </div>
 </template>
 
 <script setup>
 import ChatsView from './components/ChatsView.vue';
 import { Sidebar } from '@/components/Sidebar';
+import AppErrorModal from '@/components/shared/AppErrorModal.vue';
 </script>
 
 <style>

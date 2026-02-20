@@ -1,21 +1,19 @@
 import { ref } from 'vue';
-import type { chatMessage } from '@/entities/chat/types';
+import type { chatMessage } from '@/components/chats/types';
 import { sendToLLM } from '@/api/openRouterClient';
+import { createGlobalState } from '@vueuse/core';
+import { useAppErrorModal } from '@/composables/useAppErrorModal';
 
-const messages = ref<chatMessage[]>([]);
-const draft = ref('');
-const isLoading = ref(false);
-const error = ref<string | null>(null);
+export const useChatSession = createGlobalState(() => {
+  const messages = ref<chatMessage[]>([]);
+  const draft = ref('');
+  const isLoading = ref(false);
+  const error = ref<string | null>(null);
+  const appError = useAppErrorModal();
 
-export function useChatSession() {
   async function sendMessage() {
-    if (isLoading.value) {
-      return;
-    }
-
-    if (!draft.value.trim()) {
-      return;
-    }
+    if (isLoading.value) return;
+    if (!draft.value.trim()) return;
 
     error.value = null;
     isLoading.value = true;
@@ -42,7 +40,9 @@ export function useChatSession() {
 
       messages.value.push(assistantMessage);
     } catch (err) {
-      error.value = (err as Error).message;
+      const msg = (err as Error).message;
+      error.value = msg;
+      appError.showError(msg);
     } finally {
       isLoading.value = false;
     }
@@ -55,4 +55,4 @@ export function useChatSession() {
     error,
     sendMessage,
   };
-}
+});

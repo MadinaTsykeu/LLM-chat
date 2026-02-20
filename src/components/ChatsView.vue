@@ -1,6 +1,6 @@
 <template>
   <div class="main">
-    <MainHeader @openSidebar="onOpenSidebar" />
+    <MainHeader />
     <ChatFeed v-if="messages.length > 0" />
     <MainCard v-else />
   </div>
@@ -10,17 +10,12 @@
 import MainHeader from './chats/MainHeader.vue';
 import MainCard from './chats/MainCard.vue';
 import ChatFeed from './chats/ChatFeed.vue';
-import { useChatSession } from '@/composables/useChatSession';
+import { useChatSession } from '@/components/chats/composables/useChatSession';
+import { useAppHotkeys } from '@/composables/useAppHotkeys';
+
+useAppHotkeys();
 
 const { messages } = useChatSession();
-
-const emit = defineEmits<{
-  (e: 'openSidebar'): void;
-}>();
-
-function onOpenSidebar() {
-  emit('openSidebar');
-}
 </script>
 
 <style scoped>

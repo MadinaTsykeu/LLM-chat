@@ -7,7 +7,7 @@
       placeholder="How can I help you?"
       v-model="draft"
       :disabled="isLoading"
-      @keydown="handleKeydown"
+      data-chat-composer="true"
     />
     <textarea
       v-else
@@ -15,7 +15,7 @@
       placeholder="How can I help you?"
       v-model="draft"
       :disabled="isLoading"
-      @keydown="handleKeydown"
+      data-chat-composer="true"
     />
     <hr v-if="variant === 'full'" />
     <UiButton
@@ -36,32 +36,19 @@
 
 <script setup lang="ts">
 import SendIcon from '@icons/Send.svg';
-import { useChatSession } from '@/composables/useChatSession';
+import { useChatSession } from '@/components/chats/composables/useChatSession';
 import UiButton from '../shared/UiButton.vue';
 
 const { draft, sendMessage, isLoading } = useChatSession();
 
-const props = defineProps<{
-  variant?: 'compact' | 'full';
-}>();
-
-const variant = props.variant || 'full';
-
-function handleKeydown(e: KeyboardEvent) {
-  if (variant === 'compact') {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      sendMessage();
-    }
+const props = withDefaults(
+  defineProps<{
+    variant?: 'compact' | 'full';
+  }>(),
+  {
+    variant: 'full',
   }
-
-  if (variant === 'full') {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  }
-}
+);
 </script>
 
 <style scoped>
