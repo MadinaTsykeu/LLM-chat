@@ -4,10 +4,6 @@ export function dayKey(ts: number): string {
   return format(new Date(ts), 'yyyy-MM-dd');
 }
 
-export function isToday(ts: number): boolean {
-  return isTodayFn(new Date(ts));
-}
-
 export function formatDividerText(ts: number): string {
   const date = new Date(ts);
 
@@ -18,4 +14,8 @@ export function formatDividerText(ts: number): string {
   }
 
   return format(date, 'dd MMM hh:mm a');
+}
+
+export function formatTime(ts: number): string {
+  return format(new Date(ts), 'h:mm a');
 }

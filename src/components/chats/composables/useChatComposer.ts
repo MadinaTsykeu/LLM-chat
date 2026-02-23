@@ -1,4 +1,4 @@
-import { useChatSession } from '@/components/chats/composables/useChatSession';
+import { useChatSession } from './useChatSession';
 
 function isComposerField(el: Element | null): el is HTMLInputElement | HTMLTextAreaElement {
   if (!el) return false;

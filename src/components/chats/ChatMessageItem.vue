@@ -25,12 +25,12 @@
 </template>
 
 <script setup lang="ts">
-import type { chatMessage } from '@/components/chats/types';
+import type { TChatMessage } from '@/components/chats/types';
 import Avatar from '@/assets/image/Avatar.jpg';
 import Element from '@/assets/image/Element.jpg';
-import { formatTime } from '@/utils/formatTime';
+import { formatTime } from '@/utils/date';
 
-defineProps<{ message: chatMessage }>();
+defineProps<{ message: TChatMessage }>();
 </script>
 
 <style scoped>
