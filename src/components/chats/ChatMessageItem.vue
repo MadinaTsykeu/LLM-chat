@@ -28,17 +28,9 @@
 import type { chatMessage } from '@/components/chats/types';
 import Avatar from '@/assets/image/Avatar.jpg';
 import Element from '@/assets/image/Element.jpg';
+import { formatTime } from '@/utils/formatTime';
 
 defineProps<{ message: chatMessage }>();
-
-function formatTime(createdAt: number): string {
-  const date = new Date(createdAt);
-
-  return date.toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-}
 </script>
 
 <style scoped>

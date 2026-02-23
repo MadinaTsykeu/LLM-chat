@@ -12,8 +12,8 @@
 </template>
 
 <script setup lang="ts">
-import { useAppErrorModal } from '@/composables/useAppErrorModal';
-import UiButton from './UiButton.vue';
+import { useAppErrorModal } from '@/components/AppErrorModal';
+import UiButton from '../shared/UiButton.vue';
 
 const { isOpen, title, message, close } = useAppErrorModal();
 </script>
@@ -65,6 +65,7 @@ const { isOpen, title, message, close } = useAppErrorModal();
   .overlay {
     padding: 16px;
   }
+
   .modal {
     padding: 16px;
     margin-top: 48px;

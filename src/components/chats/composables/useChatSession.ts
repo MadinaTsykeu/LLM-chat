@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import type { chatMessage } from '@/components/chats/types';
 import { sendToLLM } from '@/api/openRouterClient';
 import { createGlobalState } from '@vueuse/core';
-import { useAppErrorModal } from '@/composables/useAppErrorModal';
+import { useAppErrorModal } from '@/components/AppErrorModal';
 
 export const useChatSession = createGlobalState(() => {
   const messages = ref<chatMessage[]>([]);

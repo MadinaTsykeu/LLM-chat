@@ -9,7 +9,7 @@
 <script setup>
 import ChatsView from './components/ChatsView.vue';
 import { Sidebar } from '@/components/Sidebar';
-import AppErrorModal from '@/components/shared/AppErrorModal.vue';
+import AppErrorModal from '@/components/AppErrorModal/AppErrorModal.vue';
 </script>
 
 <style>
