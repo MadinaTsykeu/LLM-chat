@@ -1,8 +1,9 @@
 import { ref } from 'vue';
+import { createGlobalState } from '@vueuse/core';
 
-const isOpen = ref(true);
+export const useSidebarState = createGlobalState(() => {
+  const isOpen = ref(true);
 
-export function useSidebarState() {
   const open = () => {
     isOpen.value = true;
   };
@@ -19,4 +20,4 @@ export function useSidebarState() {
     close,
     toggleOpen,
   };
-}
+});

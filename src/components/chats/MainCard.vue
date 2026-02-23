@@ -6,25 +6,16 @@
       <div class="main-card-inner">
         <h2 class="d-4">Welcome back, Mauro</h2>
         <p class="p-small">Lorem ipsum dolor sit amet consectetur adipisicing elit sed</p>
-
-        <div class="box-wrapper">
-          <input class="box-wrapper-input p-small" type="text" placeholder="How can I help you?" />
-          <UiButton variant="primary" size="df" class="box-send-btn">
-            <template #left>
-              <SendIcon :width="20" :height="20" fill="currentColor" />
-            </template>
-          </UiButton>
-        </div>
+        <ChatComposer variant="compact" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import SendIcon from '@icons/Send.svg';
 import BackgroundChat from '@icons/BackgroundChat.png';
 import BackgroundMain from '@icons/BackgroundMain.png';
-import UiButton from '../shared/UiButton.vue';
+import ChatComposer from './ChatComposer.vue';
 </script>
 
 <style scoped>
@@ -104,41 +95,6 @@ import UiButton from '../shared/UiButton.vue';
   color: var(--neutral-600);
   margin-top: 6px;
   margin-bottom: 24px;
-}
-
-.box-wrapper {
-  max-width: 400px;
-  width: 100%;
-  align-items: center;
-  padding: 8px;
-  border: 1px solid var(--neutral-400);
-  border-radius: 12px;
-  background: var(--neutral-100);
-  display: flex;
-  gap: 8px;
-  transition:
-    transform 0.12s ease,
-    filter 0.12s ease;
-}
-
-.box-wrapper-input {
-  flex: 1;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 400;
-  color: var(--neutral-600);
-}
-
-.box-wrapper-input:focus {
-  outline: none;
-}
-
-.box-send-btn {
-  width: var(--btn-height-df);
-  padding-left: 0;
-  padding-right: 0;
 }
 
 @media (max-width: 1100px) {

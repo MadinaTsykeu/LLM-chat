@@ -1,21 +1,21 @@
 <template>
   <div class="main">
-    <MainHeader @openSidebar="onOpenSidebar" />
-    <MainCard />
+    <MainHeader />
+    <ChatFeed v-if="messages.length > 0" />
+    <MainCard v-else />
   </div>
 </template>
 
 <script setup lang="ts">
 import MainHeader from './chats/MainHeader.vue';
 import MainCard from './chats/MainCard.vue';
+import ChatFeed from './chats/ChatFeed.vue';
+import { useChatSession } from '@/components/chats/composables/useChatSession';
+import { useAppHotkeys } from '@/composables/useAppHotkeys';
 
-const emit = defineEmits<{
-  (e: 'openSidebar'): void;
-}>();
+useAppHotkeys();
 
-function onOpenSidebar() {
-  emit('openSidebar');
-}
+const { messages } = useChatSession();
 </script>
 
 <style scoped>
