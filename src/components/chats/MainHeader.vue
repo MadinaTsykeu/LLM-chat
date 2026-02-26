@@ -6,7 +6,7 @@
       </template>
     </UiButton>
     <h3 class="main-header-button d-2" v-if="md">Chats</h3>
-    <UiButton variant="primary" size="sm" :only-icon="!md">
+    <UiButton variant="primary" size="sm" :only-icon="!md" @click="handleNewChat">
       <template #left>
         <ElementIcon />
       </template>
@@ -22,6 +22,13 @@ import UiButton from '../shared/UiButton.vue';
 import LeftIcon from '@icons/Left.svg';
 import { useAppBreakpoints } from '@/composables';
 import { useSidebarState } from '@/components/Sidebar';
+import { useChatStore } from '@/components/chats/composables/useChatStore';
+
+const { createChat } = useChatStore();
+
+function handleNewChat() {
+  createChat();
+}
 
 const { open } = useSidebarState();
 

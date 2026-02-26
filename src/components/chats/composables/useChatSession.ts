@@ -1,15 +1,17 @@
 import { ref } from 'vue';
-import type { chatMessage } from '@/components/chats/types';
-import { sendToLLM } from '@/api/openRouterClient';
 import { createGlobalState } from '@vueuse/core';
+import { sendToLLM } from '@/api/openRouterClient';
 import { useAppErrorModal } from '@/components/AppErrorModal';
+import { useChatStore } from '@/components/chats/composables/useChatStore';
 
 export const useChatSession = createGlobalState(() => {
-  const messages = ref<chatMessage[]>([]);
   const draft = ref('');
   const isLoading = ref(false);
   const error = ref<string | null>(null);
+
   const appError = useAppErrorModal();
+
+  const { activeMessages, addUserMessage, addAssistantMessage } = useChatStore();
 
   async function sendMessage() {
     if (isLoading.value) return;
@@ -18,27 +20,15 @@ export const useChatSession = createGlobalState(() => {
     error.value = null;
     isLoading.value = true;
 
-    const userMessage: chatMessage = {
-      role: 'user',
-      content: draft.value.trim(),
-      id: crypto.randomUUID(),
-      createdAt: Date.now(),
-    };
-
-    messages.value.push(userMessage);
+    const content = draft.value.trim();
     draft.value = '';
 
+    addUserMessage(content);
+
     try {
-      const assistantResponse = await sendToLLM(messages.value);
+      const assistantResponse = await sendToLLM(activeMessages.value);
 
-      const assistantMessage: chatMessage = {
-        role: 'assistant',
-        content: assistantResponse,
-        id: crypto.randomUUID(),
-        createdAt: Date.now(),
-      };
-
-      messages.value.push(assistantMessage);
+      addAssistantMessage(assistantResponse);
     } catch (err) {
       const msg = (err as Error).message;
       error.value = msg;
@@ -49,7 +39,7 @@ export const useChatSession = createGlobalState(() => {
   }
 
   return {
-    messages,
+    messages: activeMessages,
     draft,
     isLoading,
     error,
