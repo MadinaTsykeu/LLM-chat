@@ -8,16 +8,24 @@
   >
     <SidebarHeader />
 
-    <div class="sidebar-history">
-      <h2 class="sidebar-title d-1">chat history</h2>
-      <div class="sidebar-chat-list">
-        <SidebarChatButton>Chat 1</SidebarChatButton>
-        <SidebarChatButton>Chat 2</SidebarChatButton>
-      </div>
+    <div class="sidebar-chat-list">
+      <SidebarChatButton
+        v-for="chat in chats"
+        :key="chat.id"
+        :class="{ 'sidebar-chat-button--active': chat.id === activeChatId }"
+        @click="handleSelectChat(chat.id)"
+      >
+        {{ chat.title }}
+      </SidebarChatButton>
     </div>
 
     <div class="sidebar-bottom">
-      <UiButton variant="primary" size="sm" class="sidebar-new-chat-btn d-2">
+      <UiButton
+        variant="primary"
+        size="sm"
+        class="sidebar-new-chat-btn d-2"
+        @click="handleStartNewChat"
+      >
         <template #left>
           <ElementIcon fill="currentColor" />
         </template>
@@ -36,6 +44,7 @@ import SidebarChatButton from './SidebarChatButton.vue';
 import { useSidebarState } from '@/components/Sidebar';
 import { computed, onMounted, watch } from 'vue';
 import { useAppBreakpoints } from '@/composables/useAppBreakpoints';
+import { useChatStore } from '@/components/chats/composables/useChatStore';
 
 const { isOpen, close, open } = useSidebarState();
 const { md } = useAppBreakpoints();
@@ -51,6 +60,16 @@ watch(
   },
   { immediate: true }
 );
+
+const { chats, activeChatId, setActiveChat, createChat } = useChatStore();
+
+function handleStartNewChat() {
+  createChat();
+}
+
+function handleSelectChat(id: string) {
+  setActiveChat(id);
+}
 </script>
 
 <style scoped>
