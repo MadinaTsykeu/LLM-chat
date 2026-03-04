@@ -22,16 +22,19 @@ import UiButton from '../shared/UiButton.vue';
 import LeftIcon from '@icons/Left.svg';
 import { useAppBreakpoints } from '@/composables';
 import { useSidebarState } from '@/components/Sidebar';
-import { useChatStore } from '@/components/chats/composables/useChatStore';
+import { useChatStore } from '@/components/chats/stores/chatStore';
+import { useRouter } from 'vue-router';
+import { AppRouteName } from '@/router';
 
-const { createChat } = useChatStore();
+const chatStore = useChatStore();
+const router = useRouter();
 
 function handleNewChat() {
-  createChat();
+  const chat = chatStore.createChat();
+  router.push({ name: AppRouteName.Chat, params: { id: chat.id } });
 }
 
 const { open } = useSidebarState();
-
 const { md } = useAppBreakpoints();
 </script>
 
@@ -40,9 +43,7 @@ const { md } = useAppBreakpoints();
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 16px;
-  padding-left: 24px;
-  padding-right: 24px;
+  padding: 16px 24px;
   border-bottom: 1px solid var(--neutral-400);
 }
 

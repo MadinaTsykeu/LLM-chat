@@ -2,21 +2,29 @@
   <Teleport to="body">
     <div v-if="isMobile && isOpen" class="sidebar-overlay" aria-hidden="true" @click="close" />
   </Teleport>
+
   <aside
     class="sidebar"
     :class="isMobile ? { 'mobile-open': isOpen } : { 'sidebar--collapsed': isCollapsedDesktop }"
   >
     <SidebarHeader />
 
-    <div class="sidebar-chat-list">
-      <SidebarChatButton
-        v-for="chat in chats"
-        :key="chat.id"
-        :class="{ 'sidebar-chat-button--active': chat.id === activeChatId }"
-        @click="handleSelectChat(chat.id)"
-      >
-        {{ chat.title }}
-      </SidebarChatButton>
+    <div class="sidebar-history">
+      <h2 class="sidebar-title d-1">chat history</h2>
+
+      <div class="sidebar-chat-list">
+        <RouterLink
+          v-for="chat in chatStore.chats"
+          :key="chat.id"
+          :to="{ name: AppRouteName.Chat, params: { id: chat.id } }"
+          class="sidebar-chat-link"
+          active-class="sidebar-chat-button--active"
+        >
+          <SidebarChatButton>
+            {{ chat.title }}
+          </SidebarChatButton>
+        </RouterLink>
+      </div>
     </div>
 
     <div class="sidebar-bottom">
@@ -42,9 +50,11 @@ import UiButton from '@/components/shared/UiButton.vue';
 import SidebarHeader from './SidebarHeader.vue';
 import SidebarChatButton from './SidebarChatButton.vue';
 import { useSidebarState } from '@/components/Sidebar';
-import { computed, onMounted, watch } from 'vue';
+import { computed, watch } from 'vue';
 import { useAppBreakpoints } from '@/composables/useAppBreakpoints';
-import { useChatStore } from '@/components/chats/composables/useChatStore';
+import { useChatStore } from '@/components/chats/stores/chatStore';
+import { useRouter } from 'vue-router';
+import { AppRouteName } from '@/router';
 
 const { isOpen, close, open } = useSidebarState();
 const { md } = useAppBreakpoints();
@@ -61,14 +71,12 @@ watch(
   { immediate: true }
 );
 
-const { chats, activeChatId, setActiveChat, createChat } = useChatStore();
+const chatStore = useChatStore();
+const router = useRouter();
 
 function handleStartNewChat() {
-  createChat();
-}
-
-function handleSelectChat(id: string) {
-  setActiveChat(id);
+  const chat = chatStore.createChat();
+  router.push({ name: AppRouteName.Chat, params: { id: chat.id } });
 }
 </script>
 
@@ -78,7 +86,7 @@ function handleSelectChat(id: string) {
   flex-direction: column;
   height: 100vh;
   width: 296px;
-  padding: 24px 24px 24px 14px;
+  padding: 24px 24px 24px 24px;
   box-sizing: border-box;
   overflow: hidden;
   transition: width 0.6s ease;
@@ -131,6 +139,8 @@ function handleSelectChat(id: string) {
 
 .sidebar.sidebar--collapsed {
   width: 70px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .sidebar.sidebar--collapsed .sidebar-history {

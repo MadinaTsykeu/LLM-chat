@@ -1,8 +1,8 @@
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { createGlobalState } from '@vueuse/core';
 import { sendToLLM } from '@/api/openRouterClient';
 import { useAppErrorModal } from '@/components/AppErrorModal';
-import { useChatStore } from '@/components/chats/composables/useChatStore';
+import { useChatStore } from '@/components/chats/stores/chatStore';
 
 export const useChatSession = createGlobalState(() => {
   const draft = ref('');
@@ -11,7 +11,7 @@ export const useChatSession = createGlobalState(() => {
 
   const appError = useAppErrorModal();
 
-  const { activeMessages, addUserMessage, addAssistantMessage } = useChatStore();
+  const chatStore = useChatStore();
 
   async function sendMessage() {
     if (isLoading.value) return;
@@ -23,12 +23,12 @@ export const useChatSession = createGlobalState(() => {
     const content = draft.value.trim();
     draft.value = '';
 
-    addUserMessage(content);
+    chatStore.addUserMessage(content);
 
     try {
-      const assistantResponse = await sendToLLM(activeMessages.value);
+      const assistantResponse = await sendToLLM(chatStore.activeMessages);
 
-      addAssistantMessage(assistantResponse);
+      chatStore.addAssistantMessage(assistantResponse);
     } catch (err) {
       const msg = (err as Error).message;
       error.value = msg;
@@ -39,7 +39,7 @@ export const useChatSession = createGlobalState(() => {
   }
 
   return {
-    messages: activeMessages,
+    messages: computed(() => chatStore.activeMessages),
     draft,
     isLoading,
     error,

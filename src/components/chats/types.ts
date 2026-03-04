@@ -20,5 +20,4 @@ export type TStorageState = {
   version: 1;
   chats: TChat[];
   messagesByChatId: Record<string, TChatMessage[]>;
-  lastActiveChatId?: string | null;
 };
