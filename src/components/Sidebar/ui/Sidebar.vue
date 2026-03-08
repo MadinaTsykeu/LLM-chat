@@ -28,12 +28,7 @@
     </div>
 
     <div class="sidebar-bottom">
-      <UiButton
-        variant="primary"
-        size="sm"
-        class="sidebar-new-chat-btn d-2"
-        @click="handleStartNewChat"
-      >
+      <UiButton variant="primary" size="sm" class="sidebar-new-chat-btn d-2" @click="startNewChat">
         <template #left>
           <ElementIcon fill="currentColor" />
         </template>
@@ -53,8 +48,10 @@ import { useSidebarState } from '@/components/Sidebar';
 import { computed, watch } from 'vue';
 import { useAppBreakpoints } from '@/composables/useAppBreakpoints';
 import { useChatStore } from '@/components/chats/stores/chatStore';
-import { useRouter } from 'vue-router';
 import { AppRouteName } from '@/router';
+import { useNewChat } from '@/composables/useNewChat';
+
+const { startNewChat } = useNewChat();
 
 const { isOpen, close, open } = useSidebarState();
 const { md } = useAppBreakpoints();
@@ -72,12 +69,6 @@ watch(
 );
 
 const chatStore = useChatStore();
-const router = useRouter();
-
-function handleStartNewChat() {
-  const chat = chatStore.createChat();
-  router.push({ name: AppRouteName.Chat, params: { id: chat.id } });
-}
 </script>
 
 <style scoped>

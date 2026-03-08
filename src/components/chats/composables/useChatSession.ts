@@ -3,11 +3,17 @@ import { createGlobalState } from '@vueuse/core';
 import { sendToLLM } from '@/api/openRouterClient';
 import { useAppErrorModal } from '@/components/AppErrorModal';
 import { useChatStore } from '@/components/chats/stores/chatStore';
+import { useRoute, useRouter } from 'vue-router';
+import { AppRouteName } from '@/router';
 
 export const useChatSession = createGlobalState(() => {
   const draft = ref('');
   const isLoading = ref(false);
   const error = ref<string | null>(null);
+  const route = useRoute();
+  const router = useRouter();
+
+  const chatId = computed(() => route.params.id as string | undefined);
 
   const appError = useAppErrorModal();
 
@@ -23,12 +29,21 @@ export const useChatSession = createGlobalState(() => {
     const content = draft.value.trim();
     draft.value = '';
 
-    chatStore.addUserMessage(content);
+    let currentChatId = chatId.value;
+
+    if (!currentChatId) {
+      const chat = chatStore.createChat();
+      currentChatId = chat.id;
+      await router.push({ name: AppRouteName.Chat, params: { id: chat.id } });
+    }
+
+    chatStore.addUserMessage(currentChatId, content);
 
     try {
-      const assistantResponse = await sendToLLM(chatStore.activeMessages);
+      const messagesForChat = chatStore.messagesByChatId[currentChatId] ?? [];
+      const assistantResponse = await sendToLLM(messagesForChat);
 
-      chatStore.addAssistantMessage(assistantResponse);
+      chatStore.addAssistantMessage(currentChatId, assistantResponse);
     } catch (err) {
       const msg = (err as Error).message;
       error.value = msg;
@@ -39,7 +54,10 @@ export const useChatSession = createGlobalState(() => {
   }
 
   return {
-    messages: computed(() => chatStore.activeMessages),
+    messages: computed(() => {
+      const id = chatId.value;
+      return id ? (chatStore.messagesByChatId[id] ?? []) : [];
+    }),
     draft,
     isLoading,
     error,

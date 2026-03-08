@@ -7,7 +7,7 @@
       placeholder="How can I help you?"
       v-model="draft"
       :disabled="isLoading"
-      data-chat-composer="true"
+      @keydown.enter="sendFromComposer"
     />
     <textarea
       v-else
@@ -15,7 +15,7 @@
       placeholder="How can I help you?"
       v-model="draft"
       :disabled="isLoading"
-      data-chat-composer="true"
+      @keydown.enter="sendFromComposer"
     />
     <hr v-if="variant === 'full'" />
     <UiButton
@@ -36,10 +36,12 @@
 
 <script setup lang="ts">
 import SendIcon from '@icons/Send.svg';
-import { useChatSession } from '@/components/chats/composables/useChatSession';
 import UiButton from '../shared/UiButton.vue';
+import { useChatSession } from '@/components/chats/composables/useChatSession';
+import { useChatComposer } from '@/components/chats/composables/useChatComposer';
 
 const { draft, sendMessage, isLoading } = useChatSession();
+const { sendFromComposer } = useChatComposer(sendMessage);
 
 const props = withDefaults(
   defineProps<{

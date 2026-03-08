@@ -1,4 +1,3 @@
-<!-- src/pages/chat/ui/HomeChat.vue -->
 <template>
   <div class="main">
     <MainHeader />
@@ -10,25 +9,8 @@
 import MainHeader from '@/components/chats/MainHeader.vue';
 import MainCard from '@/components/chats/MainCard.vue';
 import { useAppHotkeys } from '@/composables/useAppHotkeys';
-import { useChatStore } from '@/components/chats/stores/chatStore';
-import { useRouter } from 'vue-router';
-import { watch } from 'vue';
-import { AppRouteName } from '@/router';
-
-const chatStore = useChatStore();
-const router = useRouter();
 
 useAppHotkeys();
-
-watch(
-  () => chatStore.activeChatId,
-  (id, oldId) => {
-    if (!oldId && id) {
-      router.push({ name: AppRouteName.Chat, params: { id } });
-    }
-  },
-  { immediate: false }
-);
 </script>
 
 <style scoped>

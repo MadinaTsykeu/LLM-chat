@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch } from 'vue';
+import { watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import MainHeader from '@/components/chats/MainHeader.vue';
 import ChatFeed from '@/components/chats/ChatFeed.vue';
@@ -20,29 +20,27 @@ const chatStore = useChatStore();
 
 useAppHotkeys();
 
-function syncActiveChatFromRoute() {
+function validateChatRoute() {
   const id = route.params.id as string | undefined;
+
   if (!id) {
     router.replace({ name: AppRouteName.ChatHome });
     return;
   }
 
   const exists = chatStore.chats.some((c) => c.id === id);
+
   if (!exists) {
     router.replace({ name: AppRouteName.ChatHome });
-    return;
   }
-
-  chatStore.setActiveChat(id);
 }
-
-onMounted(syncActiveChatFromRoute);
 
 watch(
   () => route.params.id,
   () => {
-    syncActiveChatFromRoute();
-  }
+    validateChatRoute();
+  },
+  { immediate: true }
 );
 </script>
 

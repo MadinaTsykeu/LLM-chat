@@ -70,15 +70,9 @@ export const useChatStore = defineStore('chat', {
     return {
       chats: raw.chats as TChat[],
       messagesByChatId: raw.messagesByChatId as Record<string, TChatMessage[]>,
-      activeChatId: null as string | null,
     };
   },
-  getters: {
-    activeMessages(state): TChatMessage[] {
-      if (!state.activeChatId) return [];
-      return state.messagesByChatId[state.activeChatId] ?? [];
-    },
-  },
+  getters: {},
   actions: {
     persist() {
       saveToStorage({
@@ -98,22 +92,11 @@ export const useChatStore = defineStore('chat', {
         updatedAt: now,
       };
 
-      this.chats = [...this.chats, chat];
-      this.messagesByChatId = { ...this.messagesByChatId, [id]: [] };
-
-      this.activeChatId = id;
+      this.chats.push(chat);
+      this.messagesByChatId[id] = [];
 
       this.persist();
       return chat;
-    },
-
-    setActiveChat(id: string) {
-      const exists = this.chats.some((c) => c.id === id);
-      if (!exists) return;
-
-      this.activeChatId = id;
-
-      this.persist();
     },
 
     updateChatTitleIfNeeded(chatId: string, firstUserMessageContent: string) {
@@ -131,31 +114,13 @@ export const useChatStore = defineStore('chat', {
           title = `${title.slice(0, maxLength).trim()}…`;
         }
 
-        const updated: TChat = { ...chat, title, updatedAt: Date.now() };
-
-        this.chats = [
-          ...this.chats.slice(0, chatIndex),
-          updated,
-          ...this.chats.slice(chatIndex + 1),
-        ];
+        this.chats[chatIndex] = { ...chat, title, updatedAt: Date.now() };
       } else {
-        const updated: TChat = { ...chat, updatedAt: Date.now() };
-
-        this.chats = [
-          ...this.chats.slice(0, chatIndex),
-          updated,
-          ...this.chats.slice(chatIndex + 1),
-        ];
+        this.chats[chatIndex] = { ...chat, updatedAt: Date.now() };
       }
     },
 
-    addUserMessage(content: string): TChatMessage {
-      if (!this.activeChatId || !this.chats.some((c) => c.id === this.activeChatId)) {
-        const chat = this.createChat();
-        this.activeChatId = chat.id;
-      }
-
-      const chatId = this.activeChatId as string;
+    addUserMessage(chatId: string, content: string): TChatMessage {
       const now = Date.now();
 
       const message: TChatMessage = {
@@ -167,12 +132,11 @@ export const useChatStore = defineStore('chat', {
         status: 'sent',
       };
 
-      const prevMessages = this.messagesByChatId[chatId] ?? [];
+      if (!this.messagesByChatId[chatId]) {
+        this.messagesByChatId[chatId] = [];
+      }
 
-      this.messagesByChatId = {
-        ...this.messagesByChatId,
-        [chatId]: [...prevMessages, message],
-      };
+      this.messagesByChatId[chatId].push(message);
 
       this.updateChatTitleIfNeeded(chatId, content);
       this.persist();
@@ -180,10 +144,7 @@ export const useChatStore = defineStore('chat', {
       return message;
     },
 
-    addAssistantMessage(content: string): TChatMessage | null {
-      if (!this.activeChatId) return null;
-
-      const chatId = this.activeChatId;
+    addAssistantMessage(chatId: string, content: string): TChatMessage {
       const now = Date.now();
 
       const message: TChatMessage = {
@@ -195,12 +156,11 @@ export const useChatStore = defineStore('chat', {
         status: 'sent',
       };
 
-      const prevMessages = this.messagesByChatId[chatId] ?? [];
+      if (!this.messagesByChatId[chatId]) {
+        this.messagesByChatId[chatId] = [];
+      }
 
-      this.messagesByChatId = {
-        ...this.messagesByChatId,
-        [chatId]: [...prevMessages, message],
-      };
+      this.messagesByChatId[chatId].push(message);
 
       this.persist();
 
