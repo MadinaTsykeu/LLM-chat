@@ -6,24 +6,24 @@
       type="text"
       placeholder="How can I help you?"
       v-model="draft"
-      :disabled="isLoading"
-      @keydown.enter="sendFromComposer"
+      :disabled="isSending"
+      @keydown.enter.prevent="trySend"
     />
     <textarea
       v-else
       class="composer-textarea p-small"
       placeholder="How can I help you?"
       v-model="draft"
-      :disabled="isLoading"
-      @keydown.enter="sendFromComposer"
+      :disabled="isSending"
+      @keydown.enter="onTextareaEnter"
     />
     <hr v-if="variant === 'full'" />
     <UiButton
       variant="primary"
       size="df"
       class="composer-send-btn"
-      @click="sendMessage"
-      :disabled="isLoading || draft.trim() === ''"
+      @click="trySend"
+      :disabled="isSending || draft.trim() === ''"
       :only-icon="variant === 'compact'"
     >
       <template #left>
@@ -35,13 +35,12 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import SendIcon from '@icons/Send.svg';
 import UiButton from '../shared/UiButton.vue';
-import { useChatSession } from '@/components/chats/composables/useChatSession';
-import { useChatComposer } from '@/components/chats/composables/useChatComposer';
-
-const { draft, sendMessage, isLoading } = useChatSession();
-const { sendFromComposer } = useChatComposer(sendMessage);
+import { useChatStore } from '@/components/chats/stores/chatStore';
+import { useAppErrorModal } from '@/components/AppErrorModal';
 
 const props = withDefaults(
   defineProps<{
@@ -51,6 +50,38 @@ const props = withDefaults(
     variant: 'full',
   }
 );
+
+const draft = ref('');
+const chatStore = useChatStore();
+const route = useRoute();
+const router = useRouter();
+const appError = useAppErrorModal();
+
+const isSending = computed(() => chatStore.isSending);
+
+function onTextareaEnter(e: KeyboardEvent) {
+  if (e.shiftKey) return;
+  e.preventDefault();
+  void trySend();
+}
+
+async function trySend() {
+  const content = draft.value;
+  if (!content.trim()) return;
+  if (chatStore.isSending) return;
+
+  try {
+    await chatStore.sendMessage({
+      chatId: route.params.id as string | undefined,
+      content,
+      router,
+    });
+
+    draft.value = '';
+  } catch (err) {
+    appError.showError((err as Error).message);
+  }
+}
 </script>
 
 <style scoped>

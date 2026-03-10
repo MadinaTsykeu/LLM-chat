@@ -6,42 +6,11 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
 import MainHeader from '@/components/chats/MainHeader.vue';
 import ChatFeed from '@/components/chats/ChatFeed.vue';
-import { useChatStore } from '@/components/chats/stores/chatStore';
-import { AppRouteName } from '@/router';
 import { useAppHotkeys } from '@/composables/useAppHotkeys';
 
-const route = useRoute();
-const router = useRouter();
-const chatStore = useChatStore();
-
 useAppHotkeys();
-
-function validateChatRoute() {
-  const id = route.params.id as string | undefined;
-
-  if (!id) {
-    router.replace({ name: AppRouteName.ChatHome });
-    return;
-  }
-
-  const exists = chatStore.chats.some((c) => c.id === id);
-
-  if (!exists) {
-    router.replace({ name: AppRouteName.ChatHome });
-  }
-}
-
-watch(
-  () => route.params.id,
-  () => {
-    validateChatRoute();
-  },
-  { immediate: true }
-);
 </script>
 
 <style scoped>

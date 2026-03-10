@@ -11,12 +11,22 @@
 </template>
 
 <script setup lang="ts">
-import { useChatSession } from '@/components/chats/composables/useChatSession';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+import { useChatStore } from '@/components/chats/stores/chatStore';
 import ChatComposer from './ChatComposer.vue';
 import ChatMessageItem from './ChatMessageItem.vue';
 import { dayKey, formatDividerText } from '@/utils/date';
 
-const { messages } = useChatSession();
+const route = useRoute();
+const chatStore = useChatStore();
+
+const chatId = computed(() => route.params.id as string | undefined);
+
+const messages = computed(() => {
+  const id = chatId.value;
+  return id ? (chatStore.messagesByChatId[id] ?? []) : [];
+});
 
 function shouldShowDivider(index: number): boolean {
   if (index === 0) return true;

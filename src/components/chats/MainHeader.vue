@@ -5,7 +5,7 @@
         <LeftIcon />
       </template>
     </UiButton>
-    <h3 class="main-header-button d-2" v-if="md">Chats</h3>
+    <h3 class="main-header-button d-2" v-if="md">{{ currentChatTitle }}</h3>
     <UiButton variant="primary" size="sm" :only-icon="!md" @click="startNewChat">
       <template #left>
         <ElementIcon />
@@ -23,6 +23,20 @@ import LeftIcon from '@icons/Left.svg';
 import { useAppBreakpoints } from '@/composables';
 import { useSidebarState } from '@/components/Sidebar';
 import { useNewChat } from '@/composables/useNewChat';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+import { useChatStore } from './stores/chatStore';
+
+const route = useRoute();
+const chatStore = useChatStore();
+
+const currentChatTitle = computed(() => {
+  const id = route.params.id as string | undefined;
+  if (!id) return 'Chats';
+
+  const chat = chatStore.chats.find((c) => c.id === id);
+  return chat?.title ?? 'Chats';
+});
 
 const { startNewChat } = useNewChat();
 

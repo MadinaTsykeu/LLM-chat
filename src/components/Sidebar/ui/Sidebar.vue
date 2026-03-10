@@ -14,15 +14,17 @@
 
       <div class="sidebar-chat-list">
         <RouterLink
-          v-for="chat in chatStore.chats"
+          v-for="chat in sortedChats"
           :key="chat.id"
           :to="{ name: AppRouteName.Chat, params: { id: chat.id } }"
-          class="sidebar-chat-link"
-          active-class="sidebar-chat-button--active"
+          custom
+          v-slot="{ navigate, href, isActive }"
         >
-          <SidebarChatButton>
-            {{ chat.title }}
-          </SidebarChatButton>
+          <a :href="href" class="sidebar-chat-link" @click="navigate">
+            <SidebarChatButton :active="isActive">
+              {{ chat.title }}
+            </SidebarChatButton>
+          </a>
         </RouterLink>
       </div>
     </div>
@@ -50,6 +52,8 @@ import { useAppBreakpoints } from '@/composables/useAppBreakpoints';
 import { useChatStore } from '@/components/chats/stores/chatStore';
 import { AppRouteName } from '@/router';
 import { useNewChat } from '@/composables/useNewChat';
+
+const sortedChats = computed(() => [...chatStore.chats].sort((a, b) => b.updatedAt - a.updatedAt));
 
 const { startNewChat } = useNewChat();
 

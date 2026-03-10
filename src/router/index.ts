@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import { useChatStore } from '@/components/chats/stores/chatStore';
 
 export enum AppRouteName {
   BaseLayout = 'BaseLayout',
@@ -22,6 +23,15 @@ const routes: RouteRecordRaw[] = [
         path: 'chat/:id',
         name: AppRouteName.Chat,
         component: () => import('@/pages/chat/ui/Chat.vue'),
+        beforeEnter(to) {
+          const chatStore = useChatStore();
+
+          const exists = chatStore.chats.some((c) => c.id === to.params.id);
+
+          if (!exists) {
+            return { name: AppRouteName.ChatHome };
+          }
+        },
       },
     ],
   },
