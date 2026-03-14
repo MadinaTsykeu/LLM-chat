@@ -6,7 +6,7 @@
       type="text"
       placeholder="How can I help you?"
       v-model="draft"
-      :disabled="isSending"
+      :disabled="chatStore.isSending"
       @keydown.enter.prevent="trySend"
     />
     <textarea
@@ -14,7 +14,7 @@
       class="composer-textarea p-small"
       placeholder="How can I help you?"
       v-model="draft"
-      :disabled="isSending"
+      :disabled="chatStore.isSending"
       @keydown.enter="onTextareaEnter"
     />
     <hr v-if="variant === 'full'" />
@@ -23,7 +23,7 @@
       size="df"
       class="composer-send-btn"
       @click="trySend"
-      :disabled="isSending || draft.trim() === ''"
+      :disabled="chatStore.isSending || draft.trim() === ''"
       :only-icon="variant === 'compact'"
     >
       <template #left>
@@ -35,12 +35,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import SendIcon from '@icons/Send.svg';
 import UiButton from '../shared/UiButton.vue';
 import { useChatStore } from '@/components/chats/stores/chatStore';
 import { useAppErrorModal } from '@/components/AppErrorModal';
+import { AppRouteName } from '@/router';
 
 const props = withDefaults(
   defineProps<{
@@ -57,8 +58,6 @@ const route = useRoute();
 const router = useRouter();
 const appError = useAppErrorModal();
 
-const isSending = computed(() => chatStore.isSending);
-
 function onTextareaEnter(e: KeyboardEvent) {
   if (e.shiftKey) return;
   e.preventDefault();
@@ -71,11 +70,17 @@ async function trySend() {
   if (chatStore.isSending) return;
 
   try {
-    await chatStore.sendMessage({
+    const result = await chatStore.sendMessage({
       chatId: route.params.id as string | undefined,
       content,
-      router,
     });
+
+    if (result.isNewChat) {
+      await router.push({
+        name: AppRouteName.Chat,
+        params: { id: result.chatId },
+      });
+    }
 
     draft.value = '';
   } catch (err) {

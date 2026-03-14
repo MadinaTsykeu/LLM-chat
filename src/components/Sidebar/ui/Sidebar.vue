@@ -18,13 +18,11 @@
           :key="chat.id"
           :to="{ name: AppRouteName.Chat, params: { id: chat.id } }"
           custom
-          v-slot="{ navigate, href, isActive }"
+          v-slot="{ navigate, isActive }"
         >
-          <a :href="href" class="sidebar-chat-link" @click="navigate">
-            <SidebarChatButton :active="isActive">
-              {{ chat.title }}
-            </SidebarChatButton>
-          </a>
+          <SidebarChatButton :active="isActive" @click="handleChatClick(navigate)">
+            {{ chat.title }}
+          </SidebarChatButton>
         </RouterLink>
       </div>
     </div>
@@ -62,6 +60,14 @@ const { md } = useAppBreakpoints();
 
 const isMobile = computed(() => !md.value);
 const isCollapsedDesktop = computed(() => !isOpen.value && !isMobile.value);
+
+const handleChatClick = (navigate: () => void) => {
+  if (isMobile.value) {
+    close();
+  }
+
+  navigate();
+};
 
 watch(
   isMobile,

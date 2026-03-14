@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import type { TChatMessage, TChat, TStorageState } from '@/components/chats/types';
-import type { Router } from 'vue-router';
-import { AppRouteName } from '@/router';
+import { sendToLLM } from '@/api/openRouterClient';
 
 const STORAGE_KEY = 'llm-chat-app:v1';
 const STORAGE_VERSION = 1 as const;
@@ -173,8 +172,7 @@ export const useChatStore = defineStore('chat', {
     async sendMessage(payload: {
       chatId?: string;
       content: string;
-      router: Router;
-    }): Promise<{ chatId: string }> {
+    }): Promise<{ chatId: string; isNewChat: boolean }> {
       const content = payload.content.trim();
 
       if (!content) {
@@ -182,33 +180,35 @@ export const useChatStore = defineStore('chat', {
       }
 
       if (this.isSending) {
-        return { chatId: payload.chatId ?? '' };
+        return {
+          chatId: payload.chatId ?? '',
+          isNewChat: false,
+        };
       }
 
       this.isSending = true;
 
       try {
         let currentChatId = payload.chatId;
+        let isNewChat = false;
 
         if (!currentChatId) {
           const chat = this.createChat();
           currentChatId = chat.id;
-
-          await payload.router.push({
-            name: AppRouteName.Chat,
-            params: { id: currentChatId },
-          });
+          isNewChat = true;
         }
 
         this.addUserMessage(currentChatId, content);
 
-        const { sendToLLM } = await import('@/api/openRouterClient');
         const messagesForChat = this.messagesByChatId[currentChatId] ?? [];
         const assistantResponse = await sendToLLM(messagesForChat);
 
         this.addAssistantMessage(currentChatId, assistantResponse);
 
-        return { chatId: currentChatId };
+        return {
+          chatId: currentChatId,
+          isNewChat,
+        };
       } finally {
         this.isSending = false;
       }
