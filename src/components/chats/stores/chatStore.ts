@@ -191,20 +191,34 @@ export const useChatStore = defineStore('chat', {
       try {
         let currentChatId = payload.chatId;
         let isNewChat = false;
+        let assistantResponse = '';
 
         if (!currentChatId) {
+          assistantResponse = await sendToLLM([
+            {
+              id: crypto.randomUUID(),
+              chatId: '',
+              role: 'user',
+              content,
+              createdAt: Date.now(),
+              status: 'sent',
+            },
+          ]);
+
           const chat = this.createChat();
           currentChatId = chat.id;
           isNewChat = true;
+
+          this.addUserMessage(currentChatId, content);
+          this.addAssistantMessage(currentChatId, assistantResponse);
+        } else {
+          this.addUserMessage(currentChatId, content);
+
+          const messagesForChat = this.messagesByChatId[currentChatId] ?? [];
+          const assistantResponse = await sendToLLM(messagesForChat);
+
+          this.addAssistantMessage(currentChatId, assistantResponse);
         }
-
-        this.addUserMessage(currentChatId, content);
-
-        const messagesForChat = this.messagesByChatId[currentChatId] ?? [];
-        const assistantResponse = await sendToLLM(messagesForChat);
-
-        this.addAssistantMessage(currentChatId, assistantResponse);
-
         return {
           chatId: currentChatId,
           isNewChat,
