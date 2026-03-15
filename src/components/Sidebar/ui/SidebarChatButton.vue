@@ -1,10 +1,14 @@
 <template>
-  <button class="btn d-2" type="button">
+  <button class="btn d-2" :class="{ 'btn--active': active }" type="button">
     <slot />
   </button>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+defineProps<{
+  active?: boolean;
+}>();
+</script>
 
 <style scoped>
 .btn {
@@ -26,5 +30,10 @@
 
 .btn:active:not(:disabled) {
   background: var(--neutral-500);
+}
+
+.btn--active {
+  background: var(--neutral-400);
+  color: var(--neutral-800);
 }
 </style>

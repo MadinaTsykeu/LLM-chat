@@ -2,6 +2,7 @@
   <Teleport to="body">
     <div v-if="isMobile && isOpen" class="sidebar-overlay" aria-hidden="true" @click="close" />
   </Teleport>
+
   <aside
     class="sidebar"
     :class="isMobile ? { 'mobile-open': isOpen } : { 'sidebar--collapsed': isCollapsedDesktop }"
@@ -10,14 +11,24 @@
 
     <div class="sidebar-history">
       <h2 class="sidebar-title d-1">chat history</h2>
+
       <div class="sidebar-chat-list">
-        <SidebarChatButton>Chat 1</SidebarChatButton>
-        <SidebarChatButton>Chat 2</SidebarChatButton>
+        <RouterLink
+          v-for="chat in sortedChats"
+          :key="chat.id"
+          :to="{ name: AppRouteName.Chat, params: { id: chat.id } }"
+          custom
+          v-slot="{ navigate, isActive }"
+        >
+          <SidebarChatButton :active="isActive" @click="handleChatClick(navigate)">
+            {{ chat.title }}
+          </SidebarChatButton>
+        </RouterLink>
       </div>
     </div>
 
     <div class="sidebar-bottom">
-      <UiButton variant="primary" size="sm" class="sidebar-new-chat-btn d-2">
+      <UiButton variant="primary" size="sm" class="sidebar-new-chat-btn d-2" @click="startNewChat">
         <template #left>
           <ElementIcon fill="currentColor" />
         </template>
@@ -34,14 +45,29 @@ import UiButton from '@/components/shared/UiButton.vue';
 import SidebarHeader from './SidebarHeader.vue';
 import SidebarChatButton from './SidebarChatButton.vue';
 import { useSidebarState } from '@/components/Sidebar';
-import { computed, onMounted, watch } from 'vue';
+import { computed, watch } from 'vue';
 import { useAppBreakpoints } from '@/composables/useAppBreakpoints';
+import { useChatStore } from '@/components/chats/stores/chatStore';
+import { AppRouteName } from '@/router';
+import { useNewChat } from '@/composables/useNewChat';
+
+const sortedChats = computed(() => [...chatStore.chats].sort((a, b) => b.updatedAt - a.updatedAt));
+
+const { startNewChat } = useNewChat();
 
 const { isOpen, close, open } = useSidebarState();
 const { md } = useAppBreakpoints();
 
 const isMobile = computed(() => !md.value);
 const isCollapsedDesktop = computed(() => !isOpen.value && !isMobile.value);
+
+const handleChatClick = (navigate: () => void) => {
+  if (isMobile.value) {
+    close();
+  }
+
+  navigate();
+};
 
 watch(
   isMobile,
@@ -51,6 +77,8 @@ watch(
   },
   { immediate: true }
 );
+
+const chatStore = useChatStore();
 </script>
 
 <style scoped>
@@ -59,7 +87,7 @@ watch(
   flex-direction: column;
   height: 100vh;
   width: 296px;
-  padding: 24px 24px 24px 14px;
+  padding: 24px 24px 24px 24px;
   box-sizing: border-box;
   overflow: hidden;
   transition: width 0.6s ease;
@@ -112,6 +140,8 @@ watch(
 
 .sidebar.sidebar--collapsed {
   width: 70px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .sidebar.sidebar--collapsed .sidebar-history {

@@ -6,24 +6,24 @@
       type="text"
       placeholder="How can I help you?"
       v-model="draft"
-      :disabled="isLoading"
-      data-chat-composer="true"
+      :disabled="chatStore.isSending"
+      @keydown.enter.prevent="trySend"
     />
     <textarea
       v-else
       class="composer-textarea p-small"
       placeholder="How can I help you?"
       v-model="draft"
-      :disabled="isLoading"
-      data-chat-composer="true"
+      :disabled="chatStore.isSending"
+      @keydown.enter="onTextareaEnter"
     />
     <hr v-if="variant === 'full'" />
     <UiButton
       variant="primary"
       size="df"
       class="composer-send-btn"
-      @click="sendMessage"
-      :disabled="isLoading || draft.trim() === ''"
+      @click="trySend"
+      :disabled="chatStore.isSending || draft.trim() === ''"
       :only-icon="variant === 'compact'"
     >
       <template #left>
@@ -35,11 +35,13 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import SendIcon from '@icons/Send.svg';
-import { useChatSession } from '@/components/chats/composables/useChatSession';
 import UiButton from '../shared/UiButton.vue';
-
-const { draft, sendMessage, isLoading } = useChatSession();
+import { useChatStore } from '@/components/chats/stores/chatStore';
+import { useAppErrorModal } from '@/components/AppErrorModal';
+import { AppRouteName } from '@/router';
 
 const props = withDefaults(
   defineProps<{
@@ -49,6 +51,42 @@ const props = withDefaults(
     variant: 'full',
   }
 );
+
+const draft = ref('');
+const chatStore = useChatStore();
+const route = useRoute();
+const router = useRouter();
+const appError = useAppErrorModal();
+
+function onTextareaEnter(e: KeyboardEvent) {
+  if (e.shiftKey) return;
+  e.preventDefault();
+  void trySend();
+}
+
+async function trySend() {
+  const content = draft.value;
+  if (!content.trim()) return;
+  if (chatStore.isSending) return;
+
+  try {
+    const result = await chatStore.sendMessage({
+      chatId: route.params.id as string | undefined,
+      content,
+    });
+
+    if (result.isNewChat) {
+      await router.push({
+        name: AppRouteName.Chat,
+        params: { id: result.chatId },
+      });
+    }
+
+    draft.value = '';
+  } catch (err) {
+    appError.showError((err as Error).message);
+  }
+}
 </script>
 
 <style scoped>

@@ -1,7 +1,7 @@
-import type { chatMessage } from '@/components/chats/types';
+import type { TChatMessage } from '@/components/chats/types';
 import type { OpenRouterChatMessage, OpenRouterChatCompletionResponse } from './types';
 
-export function mapChatMessagesToOpenRouter(messages: chatMessage[]): OpenRouterChatMessage[] {
+export function mapChatMessagesToOpenRouter(messages: TChatMessage[]): OpenRouterChatMessage[] {
   return messages.map((m) => ({
     role: m.role,
     content: m.content,

@@ -1,16 +1,10 @@
 <template>
   <div class="app-container">
-    <Sidebar />
-    <ChatsView />
-    <AppErrorModal />
+    <router-view />
   </div>
 </template>
 
-<script setup>
-import ChatsView from './components/ChatsView.vue';
-import { Sidebar } from '@/components/Sidebar';
-import { AppErrorModal } from '@/components/AppErrorModal';
-</script>
+<script setup></script>
 
 <style>
 .app-container {
