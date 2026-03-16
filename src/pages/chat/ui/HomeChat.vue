@@ -6,9 +6,9 @@
 </template>
 
 <script setup lang="ts">
-import MainHeader from '@/components/chats/MainHeader.vue';
-import MainCard from '@/components/chats/MainCard.vue';
-import { useAppHotkeys } from '@/composables/useAppHotkeys';
+import MainHeader from '@/features/chat/MainHeader.vue';
+import MainCard from '@/features/chat/MainCard.vue';
+import { useAppHotkeys } from '@/shared/lib/useAppHotkeys';
 
 useAppHotkeys();
 </script>

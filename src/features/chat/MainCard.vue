@@ -13,8 +13,8 @@
 </template>
 
 <script setup lang="ts">
-import BackgroundChat from '@icons/BackgroundChat.png';
-import BackgroundMain from '@icons/BackgroundMain.png';
+import BackgroundChat from '@/shared/assets/icons/BackgroundChat.png';
+import BackgroundMain from '@/shared/assets/icons/BackgroundMain.png';
 import ChatComposer from './ChatComposer.vue';
 </script>
 

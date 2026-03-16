@@ -17,15 +17,15 @@
 </template>
 
 <script setup lang="ts">
-import ElementIcon from '@icons/Element.svg';
-import UiButton from '../shared/UiButton.vue';
-import LeftIcon from '@icons/Left.svg';
-import { useAppBreakpoints } from '@/composables';
-import { useSidebarState } from '@/components/Sidebar';
-import { useNewChat } from '@/composables/useNewChat';
+import ElementIcon from '@/shared/assets/icons/Element.svg';
+import UiButton from '@/shared/ui/UiButton.vue';
+import LeftIcon from '@/shared/assets/icons/Left.svg';
+import { useAppBreakpoints } from '@/shared/lib/useAppBreakpoints';
+import { useSidebarState } from '@/features/sidebar';
+import { useNewChat } from '@/pages/chat/model/useNewChat';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { useChatStore } from './stores/chatStore';
+import { useChatStore } from '@/features/chat/model/chatStore';
 
 const route = useRoute();
 const chatStore = useChatStore();

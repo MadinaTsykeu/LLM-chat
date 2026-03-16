@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container" ref="feedContainerRef">
     <template v-for="(message, index) in messages" :key="message.id">
       <div v-if="shouldShowDivider(index)" class="divider d-1">
         {{ formatDividerText(message.createdAt) }}
@@ -11,15 +11,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { useChatStore } from '@/components/chats/stores/chatStore';
+import { useChatStore } from '@/features/chat/model/chatStore';
 import ChatComposer from './ChatComposer.vue';
 import ChatMessageItem from './ChatMessageItem.vue';
-import { dayKey, formatDividerText } from '@/utils/date';
+import { dayKey, formatDividerText } from '@/shared/lib/date';
 
 const route = useRoute();
 const chatStore = useChatStore();
+
+const feedContainerRef = ref<HTMLElement | null>(null);
 
 const chatId = computed(() => route.params.id as string | undefined);
 
@@ -27,6 +29,21 @@ const messages = computed(() => {
   const id = chatId.value;
   return id ? (chatStore.messagesByChatId[id] ?? []) : [];
 });
+
+watch(
+  () => messages.value.length,
+  async () => {
+    await nextTick();
+
+    const container = feedContainerRef.value;
+    if (!container) return;
+
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: 'smooth',
+    });
+  },
+);
 
 function shouldShowDivider(index: number): boolean {
   if (index === 0) return true;

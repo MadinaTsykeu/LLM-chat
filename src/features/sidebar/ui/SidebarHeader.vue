@@ -21,13 +21,13 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import Avatar from '@/assets/image/Avatar.jpg';
-import SettingsIcon from '@icons/Settings.svg';
-import LeftIcon from '@icons/Left.svg';
-import UiButton from '@/components/shared/UiButton.vue';
+import Avatar from '@/shared/assets/image/Avatar.jpg';
+import SettingsIcon from '@/shared/assets/icons/Settings.svg';
+import LeftIcon from '@/shared/assets/icons/Left.svg';
+import UiButton from '@/shared/ui/UiButton.vue';
 
-import { useSidebarState } from '@/components/Sidebar';
-import { useAppBreakpoints } from '@/composables/useAppBreakpoints';
+import { useSidebarState } from '../model/useSidebarState';
+import { useAppBreakpoints } from '@/shared/lib/useAppBreakpoints';
 
 const { isOpen, close, toggleOpen } = useSidebarState();
 const { md } = useAppBreakpoints();

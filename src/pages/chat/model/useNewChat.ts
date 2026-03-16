@@ -1,5 +1,5 @@
 import { useRouter } from 'vue-router';
-import { AppRouteName } from '@/router';
+import { AppRouteName } from '@/app/providers/router';
 
 export function useNewChat() {
   const router = useRouter();

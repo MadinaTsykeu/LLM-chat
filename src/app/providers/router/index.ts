@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import { useChatStore } from '@/components/chats/stores/chatStore';
+import { useChatStore } from '@/features/chat/model/chatStore';
 
 export enum AppRouteName {
   BaseLayout = 'BaseLayout',

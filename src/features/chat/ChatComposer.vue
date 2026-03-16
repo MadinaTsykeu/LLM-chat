@@ -1,31 +1,12 @@
 <template>
-  <div class="composer" :class="`composer-${variant}`">
-    <input
-      v-if="variant === 'compact'"
-      class="composer-input p-small"
-      type="text"
-      placeholder="How can I help you?"
-      v-model="draft"
-      :disabled="chatStore.isSending"
-      @keydown.enter.prevent="trySend"
-    />
-    <textarea
-      v-else
-      class="composer-textarea p-small"
-      placeholder="How can I help you?"
-      v-model="draft"
-      :disabled="chatStore.isSending"
-      @keydown.enter="onTextareaEnter"
-    />
+  <div class="composer" :class="[`composer-${variant}`, { 'is-sending': chatStore.isSending }]">
+    <input v-if="variant === 'compact'" class="composer-input p-small" type="text" placeholder="How can I help you?"
+      v-model="draft" ref="composerFieldRef" @keydown.enter.prevent="trySend" />
+    <textarea v-else class="composer-textarea p-small" placeholder="How can I help you?" v-model="draft"
+      ref="composerFieldRef" @keydown.enter="onTextareaEnter" />
     <hr v-if="variant === 'full'" />
-    <UiButton
-      variant="primary"
-      size="df"
-      class="composer-send-btn"
-      @click="trySend"
-      :disabled="chatStore.isSending || draft.trim() === ''"
-      :only-icon="variant === 'compact'"
-    >
+    <UiButton variant="primary" size="df" class="composer-send-btn" @click="trySend"
+      :disabled="chatStore.isSending || draft.trim() === ''" :only-icon="variant === 'compact'">
       <template #left>
         <SendIcon :width="20" :height="20" fill="currentColor" />
       </template>
@@ -35,13 +16,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import SendIcon from '@icons/Send.svg';
-import UiButton from '../shared/UiButton.vue';
-import { useChatStore } from '@/components/chats/stores/chatStore';
-import { useAppErrorModal } from '@/components/AppErrorModal';
-import { AppRouteName } from '@/router';
+import SendIcon from '@/shared/assets/icons/Send.svg';
+import UiButton from '@/shared/ui/UiButton.vue';
+import { useChatStore } from '@/features/chat/model/chatStore';
+import { useAppErrorModal } from '@/features/app-error-modal';
+import { AppRouteName } from '@/app/providers/router';
 
 const props = withDefaults(
   defineProps<{
@@ -53,6 +34,7 @@ const props = withDefaults(
 );
 
 const draft = ref('');
+const composerFieldRef = ref<HTMLInputElement | HTMLTextAreaElement | null>(null);
 const chatStore = useChatStore();
 const route = useRoute();
 const router = useRouter();
@@ -83,6 +65,8 @@ async function trySend() {
     }
 
     draft.value = '';
+    await nextTick();
+    composerFieldRef.value?.focus();
   } catch (err) {
     appError.showError((err as Error).message);
   }
@@ -93,13 +77,18 @@ async function trySend() {
 .composer {
   transition:
     transform 0.12s ease,
-    filter 0.12s ease;
+    filter 0.12s ease,
+    opacity 0.12s ease;
   display: flex;
   align-items: center;
   border: 1px solid var(--neutral-400);
   border-radius: 12px;
   background: var(--neutral-100);
   box-sizing: border-box;
+}
+
+.composer.is-sending {
+  opacity: 0.6;
 }
 
 .composer-compact {

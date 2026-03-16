@@ -3,23 +3,15 @@
     <div v-if="isMobile && isOpen" class="sidebar-overlay" aria-hidden="true" @click="close" />
   </Teleport>
 
-  <aside
-    class="sidebar"
-    :class="isMobile ? { 'mobile-open': isOpen } : { 'sidebar--collapsed': isCollapsedDesktop }"
-  >
+  <aside class="sidebar" :class="isMobile ? { 'mobile-open': isOpen } : { 'sidebar--collapsed': isCollapsedDesktop }">
     <SidebarHeader />
 
     <div class="sidebar-history">
       <h2 class="sidebar-title d-1">chat history</h2>
 
       <div class="sidebar-chat-list">
-        <RouterLink
-          v-for="chat in sortedChats"
-          :key="chat.id"
-          :to="{ name: AppRouteName.Chat, params: { id: chat.id } }"
-          custom
-          v-slot="{ navigate, isActive }"
-        >
+        <RouterLink v-for="chat in sortedChats" :key="chat.id"
+          :to="{ name: AppRouteName.Chat, params: { id: chat.id } }" custom v-slot="{ navigate, isActive }">
           <SidebarChatButton :active="isActive" @click="handleChatClick(navigate)">
             {{ chat.title }}
           </SidebarChatButton>
@@ -40,16 +32,16 @@
 </template>
 
 <script setup lang="ts">
-import ElementIcon from '@icons/Element.svg';
-import UiButton from '@/components/shared/UiButton.vue';
+import ElementIcon from '@/shared/assets/icons/Element.svg';
+import UiButton from '@/shared/ui/UiButton.vue';
 import SidebarHeader from './SidebarHeader.vue';
 import SidebarChatButton from './SidebarChatButton.vue';
-import { useSidebarState } from '@/components/Sidebar';
+import { useSidebarState } from '../model/useSidebarState';
 import { computed, watch } from 'vue';
-import { useAppBreakpoints } from '@/composables/useAppBreakpoints';
-import { useChatStore } from '@/components/chats/stores/chatStore';
-import { AppRouteName } from '@/router';
-import { useNewChat } from '@/composables/useNewChat';
+import { useAppBreakpoints } from '@/shared/lib/useAppBreakpoints';
+import { useChatStore } from '@/features/chat/model/chatStore';
+import { AppRouteName } from '@/app/providers/router';
+import { useNewChat } from '@/pages/chat/model/useNewChat';
 
 const sortedChats = computed(() => [...chatStore.chats].sort((a, b) => b.updatedAt - a.updatedAt));
 

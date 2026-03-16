@@ -12,8 +12,8 @@
 </template>
 
 <script setup lang="ts">
-import { useAppErrorModal } from '@/components/AppErrorModal';
-import UiButton from '../shared/UiButton.vue';
+import { useAppErrorModal } from '@/features/app-error-modal';
+import UiButton from '@/shared/ui/UiButton.vue';
 
 const { isOpen, title, message, close } = useAppErrorModal();
 </script>

@@ -1,5 +1,5 @@
 import { AxiosError } from 'axios';
-import { openRouterHttp } from '@/api/http/openRouterHttp';
+import { openRouterHttp } from '../http/openRouterHttp';
 import type { OpenRouterChatCompletionRequest, OpenRouterChatCompletionResponse } from './types';
 
 const API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;

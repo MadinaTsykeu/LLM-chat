@@ -1,11 +1,11 @@
-import './theme.css';
-import './assets/variables.css';
+import './styles/theme.css';
+import './styles/variables.css';
 
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 
 import App from './App.vue';
-import router from './router';
+import router from './providers/router';
 
 const app = createApp(App);
 
