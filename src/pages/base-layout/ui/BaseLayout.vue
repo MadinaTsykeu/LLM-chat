@@ -9,8 +9,8 @@
 </template>
 
 <script setup lang="ts">
-import { Sidebar } from '@/components/Sidebar';
-import { AppErrorModal } from '@/components/AppErrorModal';
+import { Sidebar } from '@/features/sidebar';
+import { AppErrorModal } from '@/shared/ui/modals/app-error-modal';
 </script>
 
 <style scoped>
