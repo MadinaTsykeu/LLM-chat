@@ -20,12 +20,12 @@
 import ElementIcon from '@/shared/assets/icons/Element.svg';
 import UiButton from '@/shared/ui/UiButton.vue';
 import LeftIcon from '@/shared/assets/icons/Left.svg';
-import { useAppBreakpoints } from '@/shared/lib/useAppBreakpoints';
+import { useAppBreakpoints } from '@/shared/composable/useAppBreakpoints';
 import { useSidebarState } from '@/features/sidebar';
 import { useNewChat } from '@/pages/chat/model/useNewChat';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { useChatStore } from '@/features/chat/model/chatStore';
+import { useChatStore } from '@/features/chat';
 
 const route = useRoute();
 const chatStore = useChatStore();

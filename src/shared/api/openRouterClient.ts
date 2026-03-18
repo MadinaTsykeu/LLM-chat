@@ -1,4 +1,4 @@
-import type { TChatMessage } from '@/features/chat/model/types';
+import type { TChatMessage } from '@/features/chat';
 import { createChatCompletion } from './openrouter/openRouterApi';
 import { mapChatMessagesToOpenRouter, mapOpenRouterResponseToText } from './openrouter/mappers';
 

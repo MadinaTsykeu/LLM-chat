@@ -3,15 +3,23 @@
     <div v-if="isMobile && isOpen" class="sidebar-overlay" aria-hidden="true" @click="close" />
   </Teleport>
 
-  <aside class="sidebar" :class="isMobile ? { 'mobile-open': isOpen } : { 'sidebar--collapsed': isCollapsedDesktop }">
+  <aside
+    class="sidebar"
+    :class="isMobile ? { 'mobile-open': isOpen } : { 'sidebar--collapsed': isCollapsedDesktop }"
+  >
     <SidebarHeader />
 
     <div class="sidebar-history">
       <h2 class="sidebar-title d-1">chat history</h2>
 
       <div class="sidebar-chat-list">
-        <RouterLink v-for="chat in sortedChats" :key="chat.id"
-          :to="{ name: AppRouteName.Chat, params: { id: chat.id } }" custom v-slot="{ navigate, isActive }">
+        <RouterLink
+          v-for="chat in sortedChats"
+          :key="chat.id"
+          :to="{ name: AppRouteName.Chat, params: { id: chat.id } }"
+          custom
+          v-slot="{ navigate, isActive }"
+        >
           <SidebarChatButton :active="isActive" @click="handleChatClick(navigate)">
             {{ chat.title }}
           </SidebarChatButton>
@@ -38,8 +46,8 @@ import SidebarHeader from './SidebarHeader.vue';
 import SidebarChatButton from './SidebarChatButton.vue';
 import { useSidebarState } from '../model/useSidebarState';
 import { computed, watch } from 'vue';
-import { useAppBreakpoints } from '@/shared/lib/useAppBreakpoints';
-import { useChatStore } from '@/features/chat/model/chatStore';
+import { useAppBreakpoints } from '@/shared/composable/useAppBreakpoints';
+import { useChatStore } from '@/features/chat';
 import { AppRouteName } from '@/app/providers/router';
 import { useNewChat } from '@/pages/chat/model/useNewChat';
 

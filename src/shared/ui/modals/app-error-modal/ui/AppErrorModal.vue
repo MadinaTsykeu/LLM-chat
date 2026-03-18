@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAppErrorModal } from '@/features/app-error-modal';
+import { useAppErrorModal } from '@/shared/ui/modals/app-error-modal';
 import UiButton from '@/shared/ui/UiButton.vue';
 
 const { isOpen, title, message, close } = useAppErrorModal();

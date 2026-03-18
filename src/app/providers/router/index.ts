@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import { useChatStore } from '@/features/chat/model/chatStore';
+import { useChatStore } from '@/features/chat';
 
 export enum AppRouteName {
   BaseLayout = 'BaseLayout',
@@ -11,18 +11,18 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: AppRouteName.BaseLayout,
-    component: () => import('@/pages/base-layout/ui/BaseLayout.vue'),
+    component: () => import('@/pages/base-layout').then((m) => m.BaseLayoutPage),
     redirect: { name: AppRouteName.ChatHome },
     children: [
       {
         path: 'chat',
         name: AppRouteName.ChatHome,
-        component: () => import('@/pages/chat/ui/HomeChat.vue'),
+        component: () => import('@/pages/chat').then((m) => m.HomeChatPage),
       },
       {
         path: 'chat/:id',
         name: AppRouteName.Chat,
-        component: () => import('@/pages/chat/ui/Chat.vue'),
+        component: () => import('@/pages/chat').then((m) => m.ChatPage),
         beforeEnter(to) {
           const chatStore = useChatStore();
 

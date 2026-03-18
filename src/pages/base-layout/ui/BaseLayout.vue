@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import { Sidebar } from '@/features/sidebar';
-import { AppErrorModal } from '@/features/app-error-modal';
+import { AppErrorModal } from '@/shared/ui/modals/app-error-modal';
 </script>
 
 <style scoped>

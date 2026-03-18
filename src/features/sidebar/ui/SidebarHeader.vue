@@ -27,7 +27,7 @@ import LeftIcon from '@/shared/assets/icons/Left.svg';
 import UiButton from '@/shared/ui/UiButton.vue';
 
 import { useSidebarState } from '../model/useSidebarState';
-import { useAppBreakpoints } from '@/shared/lib/useAppBreakpoints';
+import { useAppBreakpoints } from '@/shared/composable/useAppBreakpoints';
 
 const { isOpen, close, toggleOpen } = useSidebarState();
 const { md } = useAppBreakpoints();

@@ -1,5 +1,8 @@
 <template>
-  <div class="message-wrap" :class="message.role === 'user' ? 'message-wrap-user' : 'message-wrap-assistant'">
+  <div
+    class="message-wrap"
+    :class="message.role === 'user' ? 'message-wrap-user' : 'message-wrap-assistant'"
+  >
     <div class="row">
       <div>
         <img :src="message.role === 'user' ? Avatar : Element" class="avatar-img" />
@@ -22,10 +25,10 @@
 </template>
 
 <script setup lang="ts">
-import type { TChatMessage } from '@/features/chat/model/types';
+import type { TChatMessage } from '@/features/chat';
 import Avatar from '@/shared/assets/image/Avatar.jpg';
 import Element from '@/shared/assets/image/Element.jpg';
-import { formatTime } from '@/shared/lib/date';
+import { formatTime } from '@/shared/utils/date';
 
 defineProps<{ message: TChatMessage }>();
 </script>

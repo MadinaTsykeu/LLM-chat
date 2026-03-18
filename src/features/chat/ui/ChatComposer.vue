@@ -1,12 +1,31 @@
 <template>
   <div class="composer" :class="[`composer-${variant}`, { 'is-sending': chatStore.isSending }]">
-    <input v-if="variant === 'compact'" class="composer-input p-small" type="text" placeholder="How can I help you?"
-      v-model="draft" ref="composerFieldRef" @keydown.enter.prevent="trySend" />
-    <textarea v-else class="composer-textarea p-small" placeholder="How can I help you?" v-model="draft"
-      ref="composerFieldRef" @keydown.enter="onTextareaEnter" />
+    <input
+      v-if="variant === 'compact'"
+      class="composer-input p-small"
+      type="text"
+      placeholder="How can I help you?"
+      v-model="draft"
+      ref="composerFieldRef"
+      @keydown.enter.prevent="trySend"
+    />
+    <textarea
+      v-else
+      class="composer-textarea p-small"
+      placeholder="How can I help you?"
+      v-model="draft"
+      ref="composerFieldRef"
+      @keydown.enter="onTextareaEnter"
+    />
     <hr v-if="variant === 'full'" />
-    <UiButton variant="primary" size="df" class="composer-send-btn" @click="trySend"
-      :disabled="chatStore.isSending || draft.trim() === ''" :only-icon="variant === 'compact'">
+    <UiButton
+      variant="primary"
+      size="df"
+      class="composer-send-btn"
+      @click="trySend"
+      :disabled="chatStore.isSending || draft.trim() === ''"
+      :only-icon="variant === 'compact'"
+    >
       <template #left>
         <SendIcon :width="20" :height="20" fill="currentColor" />
       </template>
@@ -20,8 +39,8 @@ import { ref, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import SendIcon from '@/shared/assets/icons/Send.svg';
 import UiButton from '@/shared/ui/UiButton.vue';
-import { useChatStore } from '@/features/chat/model/chatStore';
-import { useAppErrorModal } from '@/features/app-error-modal';
+import { useChatStore } from '@/features/chat';
+import { useAppErrorModal } from '@/shared/ui/modals/app-error-modal';
 import { AppRouteName } from '@/app/providers/router';
 
 const props = withDefaults(

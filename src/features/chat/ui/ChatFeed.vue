@@ -13,10 +13,10 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { useChatStore } from '@/features/chat/model/chatStore';
+import { useChatStore } from '@/features/chat';
 import ChatComposer from './ChatComposer.vue';
 import ChatMessageItem from './ChatMessageItem.vue';
-import { dayKey, formatDividerText } from '@/shared/lib/date';
+import { dayKey, formatDividerText } from '@/shared/utils/date';
 
 const route = useRoute();
 const chatStore = useChatStore();
@@ -42,7 +42,7 @@ watch(
       top: container.scrollHeight,
       behavior: 'smooth',
     });
-  },
+  }
 );
 
 function shouldShowDivider(index: number): boolean {

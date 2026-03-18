@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import type { TChatMessage, TChat, TStorageState } from '@/features/chat/model/types';
+import type { TChatMessage, TChat, TStorageState } from '@/features/chat';
 import { sendToLLM } from '@/shared/api/openRouterClient';
 
 const STORAGE_KEY = 'llm-chat-app:v1';
