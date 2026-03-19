@@ -1,1 +1,2 @@
-export { default as BaseLayoutPage } from './ui/BaseLayout.vue';
+import BaseLayout from './ui/BaseLayout.vue';
+export default BaseLayout;

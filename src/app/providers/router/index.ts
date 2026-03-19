@@ -5,14 +5,20 @@ export enum AppRouteName {
   BaseLayout = 'BaseLayout',
   ChatHome = 'ChatHome',
   Chat = 'Chat',
+  Login = 'Login',
 }
 
 const routes: RouteRecordRaw[] = [
   {
+    path: '/login',
+    name: AppRouteName.Login,
+    component: () => import('@/pages/login'),
+  },
+  {
     path: '/',
     name: AppRouteName.BaseLayout,
-    component: () => import('@/pages/base-layout').then((m) => m.BaseLayoutPage),
-    redirect: { name: AppRouteName.ChatHome },
+    component: () => import('@/pages/base-layout'),
+    redirect: { name: AppRouteName.Login },
     children: [
       {
         path: 'chat',
