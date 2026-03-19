@@ -12,12 +12,12 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: AppRouteName.Login,
-    component: () => import('@/pages/login').then((m) => m.LoginPage),
+    component: () => import('@/pages/login'),
   },
   {
     path: '/',
     name: AppRouteName.BaseLayout,
-    component: () => import('@/pages/base-layout').then((m) => m.BaseLayoutPage),
+    component: () => import('@/pages/base-layout'),
     redirect: { name: AppRouteName.Login },
     children: [
       {
