@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 const OPENROUTER_AUTH_BASE_URL = 'https://openrouter.ai/auth';
 const OPENROUTER_OAUTH_EXCHANGE_URL = 'https://openrouter.ai/api/v1/auth/keys';
 const SESSION_STORAGE_VERIFIER_KEY = 'openrouter:pkce:code_verifier';
@@ -66,6 +68,7 @@ export function clearPkceFromSession(): void {
 
 export function assertPkceMethodFromSessionOrThrow(): void {
   const storedMethod = sessionStorage.getItem(SESSION_STORAGE_METHOD_KEY);
+
   if (storedMethod !== PKCE_METHOD) {
     throw new Error('Invalid PKCE session. Please login again.');
   }
@@ -75,32 +78,31 @@ export async function exchangeCodeForUserKey(params: {
   code: string;
   codeVerifier: string;
 }): Promise<string> {
-  const res = await fetch(OPENROUTER_OAUTH_EXCHANGE_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      code: params.code,
-      code_verifier: params.codeVerifier,
-      code_challenge_method: PKCE_METHOD,
-    }),
-  });
+  try {
+    const { data } = await axios.post<{ key?: string }>(
+      OPENROUTER_OAUTH_EXCHANGE_URL,
+      {
+        code: params.code,
+        code_verifier: params.codeVerifier,
+        code_challenge_method: PKCE_METHOD,
+      },
+      {
+        headers: { 'Content-Type': 'application/json' },
+      },
+    );
 
-  if (!res.ok) {
-    let msg = `Login failed (${res.status}).`;
-    try {
-      const data = (await res.json()) as unknown;
-      if (data && typeof data === 'object' && 'error' in data) {
-        msg = String((data as any).error);
-      } else {
-        msg = JSON.stringify(data);
-      }
-    } catch {}
-    throw new Error(msg);
-  }
+    if (!data?.key) {
+      throw new Error('OpenRouter did not return a key.');
+    }
 
-  const data = (await res.json()) as { key?: string };
-  if (!data?.key) {
-    throw new Error('OpenRouter did not return a key.');
+    return data.key;
+  } catch (error: any) {
+    const message =
+      error?.response?.data?.error ||
+      error?.response?.data ||
+      error?.message ||
+      'Login failed';
+
+    throw new Error(String(message));
   }
-  return data.key;
 }
