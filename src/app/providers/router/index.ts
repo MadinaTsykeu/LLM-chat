@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { useChatStore } from '@/features/chat';
 import { useAuthStore } from '@/shared/stores/auth';
+import { pinia } from '@/app/providers/store';
 
 export enum AppRouteName {
   BaseLayout = 'BaseLayout',
@@ -30,11 +31,13 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'chat',
         name: AppRouteName.ChatHome,
+        meta: { requiresAuth: true },
         component: () => import('@/pages/chat').then((m) => m.HomeChatPage),
       },
       {
         path: 'chat/:id',
         name: AppRouteName.Chat,
+        meta: { requiresAuth: true },
         component: () => import('@/pages/chat').then((m) => m.ChatPage),
         beforeEnter(to) {
           const chatStore = useChatStore();
@@ -55,17 +58,17 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to) => {
-  const authStore = useAuthStore();
-  const isAuthenticated = authStore.isAuthenticated.value;
-  const hasOAuthCode =
-    typeof to.query.code === 'string' ||
-    (Array.isArray(to.query.code) && to.query.code.length > 0);
-  const isChatRoute = to.name === AppRouteName.ChatHome || to.name === AppRouteName.Chat;
+const authStore = useAuthStore(pinia);
 
-  if (isChatRoute && !isAuthenticated) {
+router.beforeEach((to) => {
+  const isAuthenticated = authStore.isAuthenticated;
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
     return { name: AppRouteName.Login };
   }
+
+  const hasOAuthCode =
+    typeof to.query.code === 'string' || (Array.isArray(to.query.code) && to.query.code.length > 0);
 
   const isLoginLikeRoute = to.name === AppRouteName.Login || to.name === AppRouteName.AuthCallback;
 
