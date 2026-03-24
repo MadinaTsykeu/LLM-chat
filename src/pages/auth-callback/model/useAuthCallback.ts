@@ -7,7 +7,6 @@ import axios, { AxiosError } from 'axios';
 
 const OPENROUTER_OAUTH_EXCHANGE_URL = 'https://openrouter.ai/api/v1/auth/keys';
 const SESSION_STORAGE_VERIFIER_KEY = 'openrouter:pkce:code_verifier';
-const SESSION_STORAGE_METHOD_KEY = 'openrouter:pkce:code_challenge_method';
 const PKCE_METHOD = 'S256';
 
 function getPkceCodeVerifierFromSession(): string | null {
@@ -16,15 +15,6 @@ function getPkceCodeVerifierFromSession(): string | null {
 
 function clearPkceFromSession(): void {
   sessionStorage.removeItem(SESSION_STORAGE_VERIFIER_KEY);
-  sessionStorage.removeItem(SESSION_STORAGE_METHOD_KEY);
-}
-
-function assertPkceMethodFromSessionOrThrow(): void {
-  const storedMethod = sessionStorage.getItem(SESSION_STORAGE_METHOD_KEY);
-
-  if (storedMethod !== PKCE_METHOD) {
-    throw new Error('Invalid PKCE session. Please login again.');
-  }
 }
 
 async function exchangeCodeForUserKey(params: {
@@ -94,8 +84,6 @@ export function useAuthCallback() {
         await router.replace({ name: AppRouteName.Login });
         return;
       }
-
-      assertPkceMethodFromSessionOrThrow();
 
       const userKey = await exchangeCodeForUserKey({ code, codeVerifier });
 

@@ -5,7 +5,6 @@ import { useAppErrorModal } from '@/shared/ui/modals/app-error-modal';
 
 const OPENROUTER_AUTH_BASE_URL = 'https://openrouter.ai/auth';
 const SESSION_STORAGE_VERIFIER_KEY = 'openrouter:pkce:code_verifier';
-const SESSION_STORAGE_METHOD_KEY = 'openrouter:pkce:code_challenge_method';
 const PKCE_METHOD = 'S256';
 
 function base64UrlEncode(bytes: ArrayBuffer | Uint8Array): string {
@@ -53,7 +52,6 @@ function buildOpenRouterAuthUrl(params: { callbackUrl: string; codeChallenge: st
 
 function setPkceCodeVerifierInSession(codeVerifier: string): void {
   sessionStorage.setItem(SESSION_STORAGE_VERIFIER_KEY, codeVerifier);
-  sessionStorage.setItem(SESSION_STORAGE_METHOD_KEY, PKCE_METHOD);
 }
 
 export function useLogin() {
