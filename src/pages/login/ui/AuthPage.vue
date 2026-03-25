@@ -1,13 +1,19 @@
 <template>
   <div class="login-page">
     <img :src="BackgroundMain" alt="BackgroundMain" class="content-accent" />
-    <UiButton variant="primary" class="login-button"> Login </UiButton>
+    <UiButton variant="primary" class="login-button" :disabled="isProcessing" @click="startLogin">
+      Login
+    </UiButton>
   </div>
 </template>
 
 <script setup lang="ts">
 import BackgroundMain from '@/shared/assets/icons/BackgroundMain.png';
 import UiButton from '@/shared/ui/UiButton.vue';
+
+import { useLogin } from '../model/useLogin';
+
+const { isProcessing, startLogin } = useLogin();
 </script>
 
 <style scoped>

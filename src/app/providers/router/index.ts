@@ -6,6 +6,7 @@ export enum AppRouteName {
   ChatHome = 'ChatHome',
   Chat = 'Chat',
   Login = 'Login',
+  AuthCallback = 'AuthCallback',
 }
 
 const routes: RouteRecordRaw[] = [
@@ -13,6 +14,11 @@ const routes: RouteRecordRaw[] = [
     path: '/login',
     name: AppRouteName.Login,
     component: () => import('@/pages/login'),
+  },
+  {
+    path: '/auth/callback',
+    name: AppRouteName.AuthCallback,
+    component: () => import('@/pages/auth-callback'),
   },
   {
     path: '/',
@@ -23,11 +29,13 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'chat',
         name: AppRouteName.ChatHome,
+        meta: { requiresAuth: true },
         component: () => import('@/pages/chat').then((m) => m.HomeChatPage),
       },
       {
         path: 'chat/:id',
         name: AppRouteName.Chat,
+        meta: { requiresAuth: true },
         component: () => import('@/pages/chat').then((m) => m.ChatPage),
         beforeEnter(to) {
           const chatStore = useChatStore();
