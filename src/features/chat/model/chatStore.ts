@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
-import type { TChatMessage, TChat, TStorageState } from '@/features/chat';
+import type { TChatMessage, TChat, TStorageState, TAttachment } from '@/features/chat';
 import { sendToLLM } from '@/shared/api/openRouterClient';
 
-const STORAGE_KEY = 'llm-chat-app:v1';
-const STORAGE_VERSION = 1 as const;
+const STORAGE_KEY = 'llm-chat-app:v2';
+const STORAGE_VERSION = 2 as const;
 
 function getDefaultState(): TStorageState {
   return {
@@ -51,10 +51,25 @@ function saveToStorage(payload: {
   chats: TChat[];
   messagesByChatId: Record<string, TChatMessage[]>;
 }) {
+  const serializedMessagesByChatId: Record<string, TChatMessage[]> = Object.fromEntries(
+    Object.entries(payload.messagesByChatId).map(([chatId, messages]) => [
+      chatId,
+      messages.map((message) => ({
+        ...message,
+        attachments: message.attachments?.map((attachment) => ({
+          ...attachment,
+          source: {
+            ...attachment.source,
+            value: '',
+          },
+        })),
+      })),
+    ])
+  );
   const data: TStorageState = {
     version: STORAGE_VERSION,
     chats: payload.chats,
-    messagesByChatId: payload.messagesByChatId,
+    messagesByChatId: serializedMessagesByChatId,
   };
 
   try {
@@ -122,7 +137,7 @@ export const useChatStore = defineStore('chat', {
       }
     },
 
-    addUserMessage(chatId: string, content: string): TChatMessage {
+    addUserMessage(chatId: string, content: string, attachments: TAttachment[] = []): TChatMessage {
       const now = Date.now();
 
       const message: TChatMessage = {
@@ -132,6 +147,7 @@ export const useChatStore = defineStore('chat', {
         content,
         createdAt: now,
         status: 'sent',
+        attachments,
       };
 
       if (!this.messagesByChatId[chatId]) {
@@ -172,10 +188,12 @@ export const useChatStore = defineStore('chat', {
     async sendMessage(payload: {
       chatId?: string;
       content: string;
+      attachments?: TAttachment[];
     }): Promise<{ chatId: string; isNewChat: boolean }> {
       const content = payload.content.trim();
+      const attachments = payload.attachments ?? [];
 
-      if (!content) {
+      if (!content && attachments.length === 0) {
         throw new Error('Empty message');
       }
 
@@ -202,6 +220,7 @@ export const useChatStore = defineStore('chat', {
               content,
               createdAt: Date.now(),
               status: 'sent',
+              attachments,
             },
           ]);
 
@@ -209,10 +228,10 @@ export const useChatStore = defineStore('chat', {
           currentChatId = chat.id;
           isNewChat = true;
 
-          this.addUserMessage(currentChatId, content);
+          this.addUserMessage(currentChatId, content, attachments);
           this.addAssistantMessage(currentChatId, assistantResponse);
         } else {
-          this.addUserMessage(currentChatId, content);
+          this.addUserMessage(currentChatId, content, attachments);
 
           const messagesForChat = this.messagesByChatId[currentChatId] ?? [];
           const assistantResponse = await sendToLLM(messagesForChat);

@@ -5,4 +5,10 @@ export { default as MainCard } from './ui/MainCard.vue';
 export { default as MainHeader } from './ui/MainHeader.vue';
 
 export { useChatStore } from './model/chatStore';
-export type { TChat, TChatMessage, TStorageState, TMessageStatus } from './model/types';
+export type {
+  TChat,
+  TChatMessage,
+  TStorageState,
+  TMessageStatus,
+  TAttachment,
+} from './model/types';
