@@ -19,15 +19,24 @@ export type TAttachment = {
   };
 };
 
-export type TChatMessage = {
-  role: 'user' | 'assistant';
-  content: string;
+export type TBaseMessage = {
   id: string;
-  createdAt: number;
   chatId: string;
+  content: string;
+  createdAt: number;
   status?: TMessageStatus;
+};
+
+export type TUserMessage = TBaseMessage & {
+  role: 'user';
   attachments?: TAttachment[];
 };
+
+export type TAssistantMessage = TBaseMessage & {
+  role: 'assistant';
+};
+
+export type TChatMessage = TUserMessage | TAssistantMessage;
 
 export type TChat = {
   id: string;

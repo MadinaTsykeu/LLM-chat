@@ -11,4 +11,7 @@ export type {
   TStorageState,
   TMessageStatus,
   TAttachment,
+  TBaseMessage,
+  TUserMessage,
+  TAssistantMessage,
 } from './model/types';

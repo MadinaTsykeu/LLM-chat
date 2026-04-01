@@ -1,5 +1,12 @@
 import { defineStore } from 'pinia';
-import type { TChatMessage, TChat, TStorageState, TAttachment } from '@/features/chat';
+import type {
+  TChatMessage,
+  TChat,
+  TStorageState,
+  TAttachment,
+  TUserMessage,
+  TAssistantMessage,
+} from '@/features/chat';
 import { sendToLLM } from '@/shared/api/openRouterClient';
 
 const STORAGE_KEY = 'llm-chat-app:v2';
@@ -54,16 +61,22 @@ function saveToStorage(payload: {
   const serializedMessagesByChatId: Record<string, TChatMessage[]> = Object.fromEntries(
     Object.entries(payload.messagesByChatId).map(([chatId, messages]) => [
       chatId,
-      messages.map((message) => ({
-        ...message,
-        attachments: message.attachments?.map((attachment) => ({
-          ...attachment,
-          source: {
-            ...attachment.source,
-            value: '',
-          },
-        })),
-      })),
+      messages.map((message) => {
+        if (message.role !== 'user') {
+          return message;
+        }
+
+        return {
+          ...message,
+          attachments: message.attachments?.map((attachment) => ({
+            ...attachment,
+            source: {
+              ...attachment.source,
+              value: '',
+            },
+          })),
+        };
+      }),
     ])
   );
   const data: TStorageState = {
@@ -137,48 +150,52 @@ export const useChatStore = defineStore('chat', {
       }
     },
 
-    addUserMessage(chatId: string, content: string, attachments: TAttachment[] = []): TChatMessage {
+    addUserMessage(payload: {
+      chatId: string;
+      content: string;
+      attachments?: TAttachment[];
+    }): TUserMessage {
       const now = Date.now();
 
-      const message: TChatMessage = {
+      const message: TUserMessage = {
         id: crypto.randomUUID(),
-        chatId,
+        chatId: payload.chatId,
         role: 'user',
-        content,
+        content: payload.content,
         createdAt: now,
         status: 'sent',
-        attachments,
+        attachments: payload.attachments ?? [],
       };
 
-      if (!this.messagesByChatId[chatId]) {
-        this.messagesByChatId[chatId] = [];
+      if (!this.messagesByChatId[payload.chatId]) {
+        this.messagesByChatId[payload.chatId] = [];
       }
 
-      this.messagesByChatId[chatId].push(message);
+      this.messagesByChatId[payload.chatId].push(message);
 
-      this.updateChatTitleIfNeeded(chatId, content);
+      this.updateChatTitleIfNeeded(payload.chatId, payload.content);
       this.persist();
 
       return message;
     },
 
-    addAssistantMessage(chatId: string, content: string): TChatMessage {
+    addAssistantMessage(payload: { chatId: string; content: string }): TAssistantMessage {
       const now = Date.now();
 
-      const message: TChatMessage = {
+      const message: TAssistantMessage = {
         id: crypto.randomUUID(),
-        chatId,
+        chatId: payload.chatId,
         role: 'assistant',
-        content,
+        content: payload.content,
         createdAt: now,
         status: 'sent',
       };
 
-      if (!this.messagesByChatId[chatId]) {
-        this.messagesByChatId[chatId] = [];
+      if (!this.messagesByChatId[payload.chatId]) {
+        this.messagesByChatId[payload.chatId] = [];
       }
 
-      this.messagesByChatId[chatId].push(message);
+      this.messagesByChatId[payload.chatId].push(message);
 
       this.persist();
 
@@ -209,10 +226,9 @@ export const useChatStore = defineStore('chat', {
       try {
         let currentChatId = payload.chatId;
         let isNewChat = false;
-        let assistantResponse = '';
 
         if (!currentChatId) {
-          assistantResponse = await sendToLLM([
+          const assistantResponse = await sendToLLM([
             {
               id: crypto.randomUUID(),
               chatId: '',
@@ -228,15 +244,30 @@ export const useChatStore = defineStore('chat', {
           currentChatId = chat.id;
           isNewChat = true;
 
-          this.addUserMessage(currentChatId, content, attachments);
-          this.addAssistantMessage(currentChatId, assistantResponse);
+          this.addUserMessage({
+            chatId: currentChatId,
+            content,
+            attachments,
+          });
+
+          this.addAssistantMessage({
+            chatId: currentChatId,
+            content: assistantResponse,
+          });
         } else {
-          this.addUserMessage(currentChatId, content, attachments);
+          this.addUserMessage({
+            chatId: currentChatId,
+            content,
+            attachments,
+          });
 
           const messagesForChat = this.messagesByChatId[currentChatId] ?? [];
           const assistantResponse = await sendToLLM(messagesForChat);
 
-          this.addAssistantMessage(currentChatId, assistantResponse);
+          this.addAssistantMessage({
+            chatId: currentChatId,
+            content: assistantResponse,
+          });
         }
         return {
           chatId: currentChatId,

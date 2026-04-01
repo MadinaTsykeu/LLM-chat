@@ -4,10 +4,11 @@ import type {
   OpenRouterChatCompletionResponse,
   OpenRouterContentBlock,
 } from './types';
+import { getAudioFormatFromMimeType } from '@/shared/utils/getAudioFormat';
 
 export function mapChatMessagesToOpenRouter(messages: TChatMessage[]): OpenRouterChatMessage[] {
   return messages.map((m) => {
-    if (m.attachments && m.attachments.length > 0) {
+    if (m.role === 'user' && m.attachments && m.attachments.length > 0) {
       const content: OpenRouterContentBlock[] = [];
 
       if (m.content.trim()) {
@@ -17,14 +18,20 @@ export function mapChatMessagesToOpenRouter(messages: TChatMessage[]): OpenRoute
         });
       }
 
-      m.attachments.forEach((att) => {
+      const validAttachments = m.attachments.filter(
+        (att) => att.source.value && att.source.value.trim() !== ''
+      );
+
+      validAttachments.forEach((att) => {
         content.push(mapAttachmentToOpenRouterContent(att));
       });
 
-      return {
-        role: m.role,
-        content,
-      };
+      if (content.length > 0) {
+        return {
+          role: m.role,
+          content,
+        };
+      }
     }
 
     return {
@@ -32,14 +39,6 @@ export function mapChatMessagesToOpenRouter(messages: TChatMessage[]): OpenRoute
       content: m.content,
     };
   });
-}
-
-function getAudioFormatFromMimeType(mimeType: string): string {
-  if (mimeType === 'audio/mpeg' || mimeType === 'audio/mp3') return 'mp3';
-  if (mimeType === 'audio/wav' || mimeType === 'audio/x-wav') return 'wav';
-  if (mimeType === 'audio/m4a' || mimeType === 'audio/mp4') return 'm4a';
-
-  return 'mp3';
 }
 
 function mapAttachmentToOpenRouterContent(att: TAttachment): OpenRouterContentBlock {

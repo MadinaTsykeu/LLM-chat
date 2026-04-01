@@ -5,7 +5,7 @@
       class="composer-input p-small"
       type="text"
       placeholder="How can I help you?"
-      v-model="draft"
+      v-model.trim="draft"
       ref="composerFieldRef"
       @keydown.enter.prevent="trySend"
     />
@@ -13,66 +13,43 @@
       v-else
       class="composer-textarea p-small"
       placeholder="How can I help you?"
-      v-model="draft"
+      v-model.trim="draft"
       ref="composerFieldRef"
       @keydown.enter="onTextareaEnter"
     />
     <div v-if="attachments.length > 0" class="composer-attachments">
-      <div v-for="attachment in attachments" :key="attachment.id" class="composer-attachment-item">
-        <component :is="getAttachmentIcon(attachment.kind)" />
-        <span class="p-small composer-attachment-name">
-          {{ attachment.fileName }}
-        </span>
-        <span class="composer-attachment-size d-1">
-          {{ formatFileSize(attachment.size) }}
-        </span>
-
-        <button
-          type="button"
-          class="composer-attachment-remove"
-          @click="removeAttachment(attachment.id)"
-        >
-          ×
-        </button>
-      </div>
+      <ChatAttachmentItem
+        v-for="attachment in attachments"
+        :key="attachment.id"
+        :attachment="attachment"
+        :removable="true"
+        variant="composer"
+        @remove="removeAttachment"
+      />
     </div>
     <hr v-if="variant === 'full'" />
-    <button
+    <UiButton
       v-if="variant === 'full'"
-      type="button"
+      variant="secondary"
+      size="df"
       class="composer-attach-btn"
+      :only-icon="true"
       :disabled="chatStore.isSending"
-      @click="openFilePicker"
+      @click="openFilePicker(chatStore.isSending)"
     >
-      <Paperclip :width="20" :height="20" />
-    </button>
+      <template #left>
+        <Paperclip />
+      </template>
+    </UiButton>
     <div v-if="variant === 'full' && isAttachMenuOpen" class="composer-attach-menu">
-      <button type="button" class="composer-attach-menu-item" @click="selectAttachmentType('.pdf')">
-        File
-      </button>
-
       <button
+        v-for="option in attachmentOptions"
+        :key="option.accept"
         type="button"
         class="composer-attach-menu-item"
-        @click="selectAttachmentType('audio/*')"
+        @click="selectAttachmentType(option.accept)"
       >
-        Audio
-      </button>
-
-      <button
-        type="button"
-        class="composer-attach-menu-item"
-        @click="selectAttachmentType('video/*')"
-      >
-        Video
-      </button>
-
-      <button
-        type="button"
-        class="composer-attach-menu-item"
-        @click="selectAttachmentType('image/*')"
-      >
-        Image
+        {{ option.label }}
       </button>
     </div>
     <UiButton
@@ -104,15 +81,12 @@ import { ref, nextTick, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import SendIcon from '@/shared/assets/icons/Send.svg';
 import UiButton from '@/shared/ui/UiButton.vue';
-import FileIcon from '@/shared/assets/icons/File.svg';
-import ImageIcon from '@/shared/assets/icons/Image.svg';
-import AudioIcon from '@/shared/assets/icons/Audio.svg';
-import VideoIcon from '@/shared/assets/icons/Video.svg';
 import { useChatStore } from '@/features/chat';
 import { useAppErrorModal } from '@/shared/ui/modals/app-error-modal';
 import { AppRouteName } from '@/app/providers/router';
-import type { TAttachment } from '@/features/chat/model/types';
 import Paperclip from '@/shared/assets/icons/Paperclip.svg';
+import { useChatFiles } from '@/features/chat/model/useChatFiles';
+import ChatAttachmentItem from '@/features/chat/ui/ChatAttachmentItem.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -129,93 +103,28 @@ const chatStore = useChatStore();
 const route = useRoute();
 const router = useRouter();
 const appError = useAppErrorModal();
-const attachments = ref<TAttachment[]>([]);
-const fileInputRef = ref<HTMLInputElement | null>(null);
-const isAttachMenuOpen = ref(false);
-const currentAccept = ref('.pdf,audio/*,video/*,image/*');
-const MAX_FILE_SIZE_BYTES = 25 * 1024 * 1024;
-const MAX_ATTACHMENTS = 5;
+
+const {
+  attachments,
+  fileInputRef,
+  isAttachMenuOpen,
+  currentAccept,
+  attachmentOptions,
+  removeAttachment,
+  clearAttachments,
+  openFilePicker,
+  selectAttachmentType,
+  addFiles,
+} = useChatFiles();
 
 const canSend = computed(() => {
-  return draft.value.trim() !== '' || attachments.value.length > 0;
+  return draft.value !== '' || attachments.value.length > 0;
 });
 
 function onTextareaEnter(e: KeyboardEvent) {
   if (e.shiftKey) return;
   e.preventDefault();
   void trySend();
-}
-
-function openFilePicker() {
-  if (chatStore.isSending) return;
-  isAttachMenuOpen.value = !isAttachMenuOpen.value;
-}
-
-function selectAttachmentType(accept: string) {
-  currentAccept.value = accept;
-  isAttachMenuOpen.value = false;
-  fileInputRef.value?.click();
-}
-
-function getAttachmentKind(mimeType: string): TAttachment['kind'] {
-  if (mimeType.startsWith('audio/')) return 'audio';
-  if (mimeType.startsWith('video/')) return 'video';
-  if (mimeType.startsWith('image/')) return 'image';
-
-  return 'file';
-}
-
-function getAttachmentIcon(kind: TAttachment['kind']) {
-  switch (kind) {
-    case 'image':
-      return ImageIcon;
-    case 'audio':
-      return AudioIcon;
-    case 'video':
-      return VideoIcon;
-    case 'file':
-    default:
-      return FileIcon;
-  }
-}
-
-function readFileAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        resolve(reader.result);
-        return;
-      }
-
-      reject(new Error('Failed to read file as data URL'));
-    };
-
-    reader.onerror = () => {
-      reject(new Error('Failed to read file'));
-    };
-
-    reader.readAsDataURL(file);
-  });
-}
-
-function validateFileSize(file: File) {
-  if (file.size > MAX_FILE_SIZE_BYTES) {
-    throw new Error(`File "${file.name}" is too large. Max size is 25 MB.`);
-  }
-}
-
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) {
-    return `${bytes} B`;
-  }
-
-  if (bytes < 1024 * 1024) {
-    return `${(bytes / 1024).toFixed(1)} KB`;
-  }
-
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 function getReadableErrorMessage(error: unknown): string {
@@ -249,57 +158,13 @@ function getReadableErrorMessage(error: unknown): string {
 
 async function handleFileChange(event: Event) {
   const input = event.target as HTMLInputElement;
-  const files = input.files;
-
-  if (!files || files.length === 0) return;
 
   try {
-    const newAttachments: TAttachment[] = await Promise.all(
-      Array.from(files).map(async (file) => {
-        validateFileSize(file);
-        const dataUrl = await readFileAsDataUrl(file);
-
-        return {
-          id: crypto.randomUUID(),
-          kind: getAttachmentKind(file.type),
-          mimeType: file.type || 'application/octet-stream',
-          fileName: file.name,
-          size: file.size,
-          source: {
-            type: 'dataUrl',
-            value: dataUrl,
-          },
-        };
-      })
-    );
-
-    if (attachments.value.length + newAttachments.length > MAX_ATTACHMENTS) {
-      throw new Error(`You can attach up to ${MAX_ATTACHMENTS} files`);
-    }
-
-    attachments.value = [...attachments.value, ...newAttachments];
-
-    if (fileInputRef.value) {
-      fileInputRef.value.value = '';
-    }
-
+    await addFiles(input.files);
     await nextTick();
     composerFieldRef.value?.focus();
   } catch (err) {
     appError.showError(getReadableErrorMessage(err));
-  }
-}
-
-function removeAttachment(attachmentId: string) {
-  attachments.value = attachments.value.filter((attachment) => attachment.id !== attachmentId);
-}
-
-function clearAttachments() {
-  attachments.value = [];
-  isAttachMenuOpen.value = false;
-
-  if (fileInputRef.value) {
-    fileInputRef.value.value = '';
   }
 }
 
@@ -472,48 +337,5 @@ hr {
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 16px;
-}
-
-.composer-attachment-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  max-width: 100%;
-  padding: 6px 10px;
-  border: 1px solid var(--neutral-400);
-  background: var(--neutral-200);
-  border-radius: 10px;
-}
-
-.composer-attachment-name {
-  max-width: 220px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.composer-attachment-remove {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-size: 16px;
-  line-height: 1;
-  color: var(--neutral-600);
-}
-
-.composer-attachment-kind {
-  line-height: 1;
-  font-weight: 600;
-  color: var(--neutral-600);
-  letter-spacing: 0.04em;
-}
-
-.composer-attachment-size {
-  line-height: 1;
-  color: var(--neutral-500);
 }
 </style>
