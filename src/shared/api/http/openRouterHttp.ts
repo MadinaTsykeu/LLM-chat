@@ -7,5 +7,5 @@ export const openRouterHttp = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 30_000,
+  timeout: 120_000,
 });

@@ -1,13 +1,42 @@
 export type TMessageStatus = 'sent' | 'pending' | 'error';
+export type TAttachmentSourceType = 'dataUrl' | 'base64' | 'url';
+export type TAttachmentKind = 'file' | 'audio' | 'video' | 'image';
 
-export type TChatMessage = {
-  role: 'user' | 'assistant';
-  content: string;
+export type TAttachment = {
   id: string;
-  createdAt: number;
+  kind: TAttachmentKind;
+  mimeType: string;
+  fileName: string;
+  size: number;
+  source: {
+    type: TAttachmentSourceType;
+    value: string;
+  };
+  previewUrl?: string;
+  meta?: {
+    durationMs?: number;
+    format?: string;
+  };
+};
+
+export type TBaseMessage = {
+  id: string;
   chatId: string;
+  content: string;
+  createdAt: number;
   status?: TMessageStatus;
 };
+
+export type TUserMessage = TBaseMessage & {
+  role: 'user';
+  attachments?: TAttachment[];
+};
+
+export type TAssistantMessage = TBaseMessage & {
+  role: 'assistant';
+};
+
+export type TChatMessage = TUserMessage | TAssistantMessage;
 
 export type TChat = {
   id: string;
@@ -17,7 +46,7 @@ export type TChat = {
 };
 
 export type TStorageState = {
-  version: 1;
+  version: 2;
   chats: TChat[];
   messagesByChatId: Record<string, TChatMessage[]>;
 };
