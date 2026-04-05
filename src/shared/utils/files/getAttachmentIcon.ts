@@ -4,6 +4,10 @@ import ImageIcon from '@/shared/assets/icons/Image.svg';
 import AudioIcon from '@/shared/assets/icons/Audio.svg';
 import VideoIcon from '@/shared/assets/icons/Video.svg';
 
+function assertNever(value: never): never {
+  throw new Error(`Unexpected attachment kind: ${value}`);
+}
+
 export function getAttachmentIcon(kind: TAttachment['kind']) {
   switch (kind) {
     case 'image':
@@ -13,7 +17,8 @@ export function getAttachmentIcon(kind: TAttachment['kind']) {
     case 'video':
       return VideoIcon;
     case 'file':
-    default:
       return FileIcon;
+    default:
+      return assertNever(kind);
   }
 }

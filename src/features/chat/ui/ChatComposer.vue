@@ -35,23 +35,17 @@
       class="composer-attach-btn"
       :only-icon="true"
       :disabled="chatStore.isSending"
-      @click="openFilePicker(chatStore.isSending)"
+      @click="openFilePicker"
     >
       <template #left>
         <Paperclip />
       </template>
     </UiButton>
-    <div v-if="variant === 'full' && isAttachMenuOpen" class="composer-attach-menu">
-      <button
-        v-for="option in attachmentOptions"
-        :key="option.accept"
-        type="button"
-        class="composer-attach-menu-item"
-        @click="selectAttachmentType(option.accept)"
-      >
-        {{ option.label }}
-      </button>
-    </div>
+    <ChatAttachmentOptions
+      v-if="variant === 'full'"
+      v-model="isAttachMenuOpen"
+      @select="handleAttachmentSelect"
+    />
     <UiButton
       variant="primary"
       size="df"
@@ -87,6 +81,7 @@ import { AppRouteName } from '@/app/providers/router';
 import Paperclip from '@/shared/assets/icons/Paperclip.svg';
 import { useChatFiles } from '@/features/chat/model/useChatFiles';
 import ChatAttachmentItem from '@/features/chat/ui/ChatAttachmentItem.vue';
+import ChatAttachmentOptions from '@/features/chat/ui/attachments/ChatAttachmentOptions.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -107,18 +102,33 @@ const appError = useAppErrorModal();
 const {
   attachments,
   fileInputRef,
-  isAttachMenuOpen,
+  currentType,
   currentAccept,
-  attachmentOptions,
   removeAttachment,
   clearAttachments,
-  openFilePicker,
-  selectAttachmentType,
   addFiles,
 } = useChatFiles();
 
+const isAttachMenuOpen = ref(false);
+
+function openFilePicker() {
+  if (chatStore.isSending) return;
+  isAttachMenuOpen.value = !isAttachMenuOpen.value;
+}
+
+async function handleAttachmentSelect(accept: string) {
+  currentType.value = accept;
+
+  if (fileInputRef.value) {
+    fileInputRef.value.value = '';
+  }
+
+  await nextTick();
+  fileInputRef.value?.click();
+}
+
 const canSend = computed(() => {
-  return draft.value !== '' || attachments.value.length > 0;
+  return draft.value || attachments.value.length;
 });
 
 function onTextareaEnter(e: KeyboardEvent) {

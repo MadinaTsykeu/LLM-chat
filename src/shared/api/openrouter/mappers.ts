@@ -4,7 +4,7 @@ import type {
   OpenRouterChatCompletionResponse,
   OpenRouterContentBlock,
 } from './types';
-import { getAudioFormatFromMimeType } from '@/shared/utils/getAudioFormat';
+import { getAudioFormatFromMimeType } from '@/shared/utils/files/getAudioFormat';
 
 export function mapChatMessagesToOpenRouter(messages: TChatMessage[]): OpenRouterChatMessage[] {
   return messages.map((m) => {

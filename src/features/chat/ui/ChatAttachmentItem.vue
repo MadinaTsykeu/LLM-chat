@@ -45,7 +45,7 @@
 
 <script setup lang="ts">
 import type { TAttachment } from '@/features/chat/model/types';
-import { getAttachmentIcon } from '@/shared/utils/getAttachmentIcon';
+import { getAttachmentIcon } from '@/shared/utils/files/getAttachmentIcon';
 import { formatBytes } from '@/shared/utils/formatBytes';
 
 withDefaults(
