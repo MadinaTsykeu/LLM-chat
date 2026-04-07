@@ -82,6 +82,14 @@ import Paperclip from '@/shared/assets/icons/Paperclip.svg';
 import { useChatFiles } from '@/features/chat/model/useChatFiles';
 import ChatAttachmentItem from '@/features/chat/ui/ChatAttachmentItem.vue';
 import ChatAttachmentOptions from '@/features/chat/ui/attachments/ChatAttachmentOptions.vue';
+import { ATTACHMENT_ACCEPT } from '@/features/chat/ui/attachments/constants';
+import { getReadableUploadErrorMessage } from '@/features/chat/model/getReadableUploadErrorMessage';
+
+const currentType = ref<string | null>(null);
+
+const currentAccept = computed(() => {
+  return currentType.value ?? ATTACHMENT_ACCEPT.ALL;
+});
 
 const props = withDefaults(
   defineProps<{
@@ -99,15 +107,7 @@ const route = useRoute();
 const router = useRouter();
 const appError = useAppErrorModal();
 
-const {
-  attachments,
-  fileInputRef,
-  currentType,
-  currentAccept,
-  removeAttachment,
-  clearAttachments,
-  addFiles,
-} = useChatFiles();
+const { attachments, fileInputRef, removeAttachment, clearAttachments, addFiles } = useChatFiles();
 
 const isAttachMenuOpen = ref(false);
 
@@ -137,35 +137,6 @@ function onTextareaEnter(e: KeyboardEvent) {
   void trySend();
 }
 
-function getReadableErrorMessage(error: unknown): string {
-  const message = error instanceof Error ? error.message : 'Something went wrong';
-
-  if (message.includes('No endpoints found that support input audio')) {
-    return 'The selected model does not support audio attachments.';
-  }
-
-  if (
-    message.toLowerCase().includes('video') &&
-    (message.toLowerCase().includes('not support') || message.toLowerCase().includes('unsupported'))
-  ) {
-    return 'The selected model does not support video attachments.';
-  }
-
-  if (message.includes('At most 10 image(s)')) {
-    return 'This file is too large or has too many pages for the selected model.';
-  }
-
-  if (message.toLowerCase().includes('timeout')) {
-    return 'The request took too long. Try a smaller file or try again.';
-  }
-
-  if (message.includes('is too large')) {
-    return message;
-  }
-
-  return message;
-}
-
 async function handleFileChange(event: Event) {
   const input = event.target as HTMLInputElement;
 
@@ -174,7 +145,7 @@ async function handleFileChange(event: Event) {
     await nextTick();
     composerFieldRef.value?.focus();
   } catch (err) {
-    appError.showError(getReadableErrorMessage(err));
+    appError.showError(getReadableUploadErrorMessage(err));
   }
 }
 
@@ -203,7 +174,7 @@ async function trySend() {
     await nextTick();
     composerFieldRef.value?.focus();
   } catch (err) {
-    appError.showError(getReadableErrorMessage(err));
+    appError.showError(getReadableUploadErrorMessage(err));
   }
 }
 </script>

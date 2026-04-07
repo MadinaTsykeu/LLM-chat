@@ -13,6 +13,8 @@
 </template>
 
 <script setup lang="ts">
+import { ATTACHMENT_OPTIONS } from './constants';
+
 const props = defineProps<{
   modelValue: boolean;
 }>();
@@ -22,12 +24,7 @@ const emit = defineEmits<{
   (e: 'select', accept: string): void;
 }>();
 
-const attachmentOptions = [
-  { label: 'File', accept: '.pdf' },
-  { label: 'Audio', accept: 'audio/*' },
-  { label: 'Video', accept: 'video/*' },
-  { label: 'Image', accept: 'image/*' },
-];
+const attachmentOptions = ATTACHMENT_OPTIONS;
 
 function handleSelect(accept: string) {
   emit('select', accept);

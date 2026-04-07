@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import type { TAttachment } from '@/features/chat/model/types';
 import { getAttachmentKind } from '@/shared/utils/files/getAttachmentKind';
 import { validateFileSize, validateAttachmentsLimit } from '@/features/chat/model/fileValidation';
@@ -6,10 +6,6 @@ import { validateFileSize, validateAttachmentsLimit } from '@/features/chat/mode
 export function useChatFiles() {
   const attachments = ref<TAttachment[]>([]);
   const fileInputRef = ref<HTMLInputElement | null>(null);
-  const currentType = ref<string | null>(null);
-  const currentAccept = computed(() => {
-    return currentType.value ?? '.pdf,audio/*,video/*,image/*';
-  });
 
   function readFileAsDataUrl(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -78,8 +74,6 @@ export function useChatFiles() {
   return {
     attachments,
     fileInputRef,
-    currentType,
-    currentAccept,
     removeAttachment,
     clearAttachments,
     addFiles,
