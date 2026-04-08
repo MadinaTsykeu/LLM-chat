@@ -16,8 +16,28 @@
             {{ formatTime(message.createdAt) }}
           </span>
         </div>
+
         <div class="message d-2">
-          <p>{{ message.content }}</p>
+          <p v-if="message.content">{{ message.content }}</p>
+
+          <div
+            v-if="message.role === 'user' && message.attachments && message.attachments.length > 0"
+            class="message-attachments"
+          >
+            <div
+              v-if="
+                message.role === 'user' && message.attachments && message.attachments.length > 0
+              "
+              class="message-attachments"
+            >
+              <ChatAttachmentItem
+                v-for="att in message.attachments"
+                :key="att.id"
+                :attachment="att"
+                variant="message"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -29,6 +49,7 @@ import type { TChatMessage } from '@/features/chat';
 import Avatar from '@/shared/assets/image/Avatar.jpg';
 import Element from '@/shared/assets/image/Element.jpg';
 import { formatTime } from '@/shared/utils/date';
+import ChatAttachmentItem from '@/features/chat/ui/ChatAttachmentItem.vue';
 
 defineProps<{ message: TChatMessage }>();
 </script>
@@ -114,5 +135,13 @@ p {
   position: absolute;
   left: 0;
   color: var(--btn-secondary-border);
+}
+
+.message-attachments {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 4px;
+  width: 100%;
 }
 </style>
