@@ -1,7 +1,7 @@
 <template>
   <div v-if="modelValue" class="composer-attach-menu" tabindex="-1" @focusout="handleFocusOut">
     <button
-      v-for="option in attachmentOptions"
+      v-for="option in ATTACHMENT_OPTIONS"
       :key="option.accept"
       type="button"
       class="composer-attach-menu-item"
@@ -23,8 +23,6 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'select', accept: string): void;
 }>();
-
-const attachmentOptions = ATTACHMENT_OPTIONS;
 
 function handleSelect(accept: string) {
   emit('select', accept);
