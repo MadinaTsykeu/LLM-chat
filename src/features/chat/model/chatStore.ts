@@ -179,7 +179,11 @@ export const useChatStore = defineStore('chat', {
       return message;
     },
 
-    addAssistantMessage(payload: { chatId: string; content: string }): TAssistantMessage {
+    addAssistantMessage(payload: {
+      chatId: string;
+      content: string;
+      replyToMessageId?: string;
+    }): TAssistantMessage {
       const now = Date.now();
 
       const message: TAssistantMessage = {
@@ -189,6 +193,7 @@ export const useChatStore = defineStore('chat', {
         content: payload.content,
         createdAt: now,
         status: 'sent',
+        replyToMessageId: payload.replyToMessageId,
       };
 
       if (!this.messagesByChatId[payload.chatId]) {
@@ -244,7 +249,7 @@ export const useChatStore = defineStore('chat', {
           currentChatId = chat.id;
           isNewChat = true;
 
-          this.addUserMessage({
+          const userMessage = this.addUserMessage({
             chatId: currentChatId,
             content,
             attachments,
@@ -253,9 +258,10 @@ export const useChatStore = defineStore('chat', {
           this.addAssistantMessage({
             chatId: currentChatId,
             content: assistantResponse,
+            replyToMessageId: userMessage.id,
           });
         } else {
-          this.addUserMessage({
+          const userMessage = this.addUserMessage({
             chatId: currentChatId,
             content,
             attachments,
@@ -267,12 +273,53 @@ export const useChatStore = defineStore('chat', {
           this.addAssistantMessage({
             chatId: currentChatId,
             content: assistantResponse,
+            replyToMessageId: userMessage.id,
           });
         }
         return {
           chatId: currentChatId,
           isNewChat,
         };
+      } finally {
+        this.isSending = false;
+      }
+    },
+    async retryAssistantMessage(payload: {
+      chatId: string;
+      assistantMessageId: string;
+    }): Promise<void> {
+      if (this.isSending) return;
+
+      const messages = this.messagesByChatId[payload.chatId] ?? [];
+
+      const assistantMessage = messages.find(
+        (message) => message.id === payload.assistantMessageId && message.role === 'assistant'
+      );
+
+      if (!assistantMessage?.replyToMessageId) {
+        throw new Error('Cannot retry this message');
+      }
+
+      const userMessageIndex = messages.findIndex(
+        (message) => message.id === assistantMessage.replyToMessageId
+      );
+
+      if (userMessageIndex === -1) {
+        throw new Error('Original user message not found');
+      }
+
+      const retryContext = messages.slice(0, userMessageIndex + 1);
+
+      this.isSending = true;
+
+      try {
+        const assistantResponse = await sendToLLM(retryContext);
+
+        this.addAssistantMessage({
+          chatId: payload.chatId,
+          content: assistantResponse,
+          replyToMessageId: assistantMessage.replyToMessageId,
+        });
       } finally {
         this.isSending = false;
       }

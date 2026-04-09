@@ -25,6 +25,7 @@ export type TBaseMessage = {
   content: string;
   createdAt: number;
   status?: TMessageStatus;
+  replyToMessageId?: string;
 };
 
 export type TUserMessage = TBaseMessage & {
