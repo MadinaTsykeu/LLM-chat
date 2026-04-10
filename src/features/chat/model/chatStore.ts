@@ -179,11 +179,7 @@ export const useChatStore = defineStore('chat', {
       return message;
     },
 
-    addAssistantMessage(payload: {
-      chatId: string;
-      content: string;
-      replyToMessageId?: string;
-    }): TAssistantMessage {
+    addAssistantMessage(payload: { chatId: string; content: string }): TAssistantMessage {
       const now = Date.now();
 
       const message: TAssistantMessage = {
@@ -193,7 +189,6 @@ export const useChatStore = defineStore('chat', {
         content: payload.content,
         createdAt: now,
         status: 'sent',
-        replyToMessageId: payload.replyToMessageId,
       };
 
       if (!this.messagesByChatId[payload.chatId]) {
@@ -249,7 +244,7 @@ export const useChatStore = defineStore('chat', {
           currentChatId = chat.id;
           isNewChat = true;
 
-          const userMessage = this.addUserMessage({
+          this.addUserMessage({
             chatId: currentChatId,
             content,
             attachments,
@@ -258,10 +253,9 @@ export const useChatStore = defineStore('chat', {
           this.addAssistantMessage({
             chatId: currentChatId,
             content: assistantResponse,
-            replyToMessageId: userMessage.id,
           });
         } else {
-          const userMessage = this.addUserMessage({
+          this.addUserMessage({
             chatId: currentChatId,
             content,
             attachments,
@@ -273,7 +267,6 @@ export const useChatStore = defineStore('chat', {
           this.addAssistantMessage({
             chatId: currentChatId,
             content: assistantResponse,
-            replyToMessageId: userMessage.id,
           });
         }
         return {
@@ -292,23 +285,33 @@ export const useChatStore = defineStore('chat', {
 
       const messages = this.messagesByChatId[payload.chatId] ?? [];
 
-      const assistantMessage = messages.find(
+      const assistantMessageIndex = messages.findIndex(
         (message) => message.id === payload.assistantMessageId && message.role === 'assistant'
       );
 
-      if (!assistantMessage?.replyToMessageId) {
-        throw new Error('Cannot retry this message');
+      if (assistantMessageIndex === -1) {
+        throw new Error('Assistant message not found');
       }
 
-      const userMessageIndex = messages.findIndex(
-        (message) => message.id === assistantMessage.replyToMessageId
-      );
+      const previousMessages = messages.slice(0, assistantMessageIndex);
+
+      let userMessageIndex = -1;
+
+      for (let i = previousMessages.length - 1; i >= 0; i -= 1) {
+        if (previousMessages[i].role === 'user') {
+          userMessageIndex = i;
+          break;
+        }
+      }
 
       if (userMessageIndex === -1) {
         throw new Error('Original user message not found');
       }
 
       const retryContext = messages.slice(0, userMessageIndex + 1);
+
+      this.messagesByChatId[payload.chatId] = messages.slice(0, assistantMessageIndex);
+      this.persist();
 
       this.isSending = true;
 
@@ -318,7 +321,6 @@ export const useChatStore = defineStore('chat', {
         this.addAssistantMessage({
           chatId: payload.chatId,
           content: assistantResponse,
-          replyToMessageId: assistantMessage.replyToMessageId,
         });
       } finally {
         this.isSending = false;

@@ -72,7 +72,7 @@ const chatStore = useChatStore();
 const { message } = defineProps<{ message: TChatMessage }>();
 
 const showActions = computed(() => {
-  return message.role === 'assistant' && message.content.trim() !== '';
+  return message.role === 'assistant' && message.content.trim();
 });
 
 const isCopied = ref(false);
