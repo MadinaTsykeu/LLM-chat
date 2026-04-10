@@ -277,5 +277,54 @@ export const useChatStore = defineStore('chat', {
         this.isSending = false;
       }
     },
+    async retryAssistantMessage(payload: {
+      chatId: string;
+      assistantMessageId: string;
+    }): Promise<void> {
+      if (this.isSending) return;
+
+      const messages = this.messagesByChatId[payload.chatId] ?? [];
+
+      const assistantMessageIndex = messages.findIndex(
+        (message) => message.id === payload.assistantMessageId && message.role === 'assistant'
+      );
+
+      if (assistantMessageIndex === -1) {
+        throw new Error('Assistant message not found');
+      }
+
+      const previousMessages = messages.slice(0, assistantMessageIndex);
+
+      let userMessageIndex = -1;
+
+      for (let i = previousMessages.length - 1; i >= 0; i -= 1) {
+        if (previousMessages[i].role === 'user') {
+          userMessageIndex = i;
+          break;
+        }
+      }
+
+      if (userMessageIndex === -1) {
+        throw new Error('Original user message not found');
+      }
+
+      const retryContext = messages.slice(0, userMessageIndex + 1);
+
+      this.messagesByChatId[payload.chatId] = messages.slice(0, assistantMessageIndex);
+      this.persist();
+
+      this.isSending = true;
+
+      try {
+        const assistantResponse = await sendToLLM(retryContext);
+
+        this.addAssistantMessage({
+          chatId: payload.chatId,
+          content: assistantResponse,
+        });
+      } finally {
+        this.isSending = false;
+      }
+    },
   },
 });
