@@ -36,7 +36,7 @@
           <button
             type="button"
             class="copy-btn"
-            :disabled="chatStore.isSending"
+            :disabled="chatStore.isChatSending(message.chatId)"
             @click="handleRetry"
           >
             <Reload />
@@ -45,7 +45,7 @@
             type="button"
             @click="handleCopy"
             :class="['copy-btn', { 'copy-btn-active': isCopied }]"
-            :disabled="chatStore.isSending"
+            :disabled="chatStore.isChatSending(message.chatId)"
           >
             <Copy></Copy>
           </button>

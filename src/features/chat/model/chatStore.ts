@@ -2,94 +2,24 @@ import { defineStore } from 'pinia';
 import type {
   TChatMessage,
   TChat,
-  TStorageState,
   TAttachment,
   TUserMessage,
   TAssistantMessage,
 } from '@/features/chat';
 import { sendToLLM } from '@/shared/api/openRouterClient';
+import { loadFromStorage, saveToStorage } from '@/features/chat/model/chatStorage';
+import {
+  buildChat,
+  buildUserMessage,
+  buildAssistantMessage,
+  buildChatTitleFromMessage,
+} from '@/features/chat/model/chatDomain';
+import { useAuthStore } from '@/shared/stores/auth';
 
-const STORAGE_KEY = 'llm-chat-app:v2';
-const STORAGE_VERSION = 2 as const;
+const NEW_CHAT_SENDING_KEY = '__new_chat__';
 
-function getDefaultState(): TStorageState {
-  return {
-    version: STORAGE_VERSION,
-    chats: [],
-    messagesByChatId: {},
-  };
-}
-
-function isValidState(v: unknown): v is TStorageState {
-  if (!v || typeof v !== 'object') return false;
-
-  const obj = v as Record<string, unknown>;
-
-  if (obj.version !== STORAGE_VERSION) return false;
-
-  if (!Array.isArray(obj.chats)) return false;
-
-  if (!obj.messagesByChatId || typeof obj.messagesByChatId !== 'object') return false;
-
-  return true;
-}
-
-function loadFromStorage(): TStorageState {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-
-    if (!raw) return getDefaultState();
-
-    const parsed = JSON.parse(raw) as unknown;
-
-    if (!isValidState(parsed)) return getDefaultState();
-
-    return {
-      version: STORAGE_VERSION,
-      chats: parsed.chats,
-      messagesByChatId: parsed.messagesByChatId,
-    };
-  } catch {
-    return getDefaultState();
-  }
-}
-
-function saveToStorage(payload: {
-  chats: TChat[];
-  messagesByChatId: Record<string, TChatMessage[]>;
-}) {
-  const serializedMessagesByChatId: Record<string, TChatMessage[]> = Object.fromEntries(
-    Object.entries(payload.messagesByChatId).map(([chatId, messages]) => [
-      chatId,
-      messages.map((message) => {
-        if (message.role !== 'user') {
-          return message;
-        }
-
-        return {
-          ...message,
-          attachments: message.attachments?.map((attachment) => ({
-            ...attachment,
-            source: {
-              ...attachment.source,
-              value: '',
-            },
-          })),
-        };
-      }),
-    ])
-  );
-  const data: TStorageState = {
-    version: STORAGE_VERSION,
-    chats: payload.chats,
-    messagesByChatId: serializedMessagesByChatId,
-  };
-
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (error) {
-    console.error('Failed to save chat state to localStorage:', error);
-  }
+function getSendingKey(chatId?: string): string {
+  return chatId ?? NEW_CHAT_SENDING_KEY;
 }
 
 export const useChatStore = defineStore('chat', {
@@ -99,10 +29,10 @@ export const useChatStore = defineStore('chat', {
     return {
       chats: raw.chats as TChat[],
       messagesByChatId: raw.messagesByChatId as Record<string, TChatMessage[]>,
-      isSending: false,
+      sendingByChatId: {} as Record<string, boolean>,
     };
   },
-  getters: {},
+
   actions: {
     persist() {
       saveToStorage({
@@ -111,21 +41,25 @@ export const useChatStore = defineStore('chat', {
       });
     },
 
-    createChat(initialTitle?: string): TChat {
-      const id = crypto.randomUUID();
-      const now = Date.now();
+    isChatSending(chatId: string): boolean {
+      return Boolean(this.sendingByChatId[chatId]);
+    },
 
-      const chat: TChat = {
-        id,
-        title: initialTitle && initialTitle.trim() ? initialTitle : 'New chat',
-        createdAt: now,
-        updatedAt: now,
-      };
+    setChatSending(chatId: string, value: boolean) {
+      if (value) {
+        this.sendingByChatId[chatId] = true;
+        return;
+      }
+
+      delete this.sendingByChatId[chatId];
+    },
+
+    createChat(initialTitle?: string): TChat {
+      const chat = buildChat(initialTitle);
 
       this.chats.push(chat);
-      this.messagesByChatId[id] = [];
+      this.messagesByChatId[chat.id] = [];
 
-      this.persist();
       return chat;
     },
 
@@ -137,12 +71,7 @@ export const useChatStore = defineStore('chat', {
       const messages = this.messagesByChatId[chatId] ?? [];
 
       if (messages.filter((m) => m.role === 'user').length === 1) {
-        const maxLength = 28;
-        let title = firstUserMessageContent.trim();
-
-        if (title.length > maxLength) {
-          title = `${title.slice(0, maxLength).trim()}…`;
-        }
+        const title = buildChatTitleFromMessage(firstUserMessageContent);
 
         this.chats[chatIndex] = { ...chat, title, updatedAt: Date.now() };
       } else {
@@ -150,54 +79,36 @@ export const useChatStore = defineStore('chat', {
       }
     },
 
+    ensureChatMessages(chatId: string): TChatMessage[] {
+      if (!this.messagesByChatId[chatId]) {
+        this.messagesByChatId[chatId] = [];
+      }
+
+      return this.messagesByChatId[chatId];
+    },
+
+    appendMessage(chatId: string, message: TChatMessage) {
+      const messages = this.ensureChatMessages(chatId);
+      messages.push(message);
+    },
+
     addUserMessage(payload: {
       chatId: string;
       content: string;
       attachments?: TAttachment[];
     }): TUserMessage {
-      const now = Date.now();
+      const message = buildUserMessage(payload);
 
-      const message: TUserMessage = {
-        id: crypto.randomUUID(),
-        chatId: payload.chatId,
-        role: 'user',
-        content: payload.content,
-        createdAt: now,
-        status: 'sent',
-        attachments: payload.attachments ?? [],
-      };
-
-      if (!this.messagesByChatId[payload.chatId]) {
-        this.messagesByChatId[payload.chatId] = [];
-      }
-
-      this.messagesByChatId[payload.chatId].push(message);
-
+      this.appendMessage(payload.chatId, message);
       this.updateChatTitleIfNeeded(payload.chatId, payload.content);
-      this.persist();
 
       return message;
     },
 
     addAssistantMessage(payload: { chatId: string; content: string }): TAssistantMessage {
-      const now = Date.now();
+      const message = buildAssistantMessage(payload);
 
-      const message: TAssistantMessage = {
-        id: crypto.randomUUID(),
-        chatId: payload.chatId,
-        role: 'assistant',
-        content: payload.content,
-        createdAt: now,
-        status: 'sent',
-      };
-
-      if (!this.messagesByChatId[payload.chatId]) {
-        this.messagesByChatId[payload.chatId] = [];
-      }
-
-      this.messagesByChatId[payload.chatId].push(message);
-
-      this.persist();
+      this.appendMessage(payload.chatId, message);
 
       return message;
     },
@@ -214,74 +125,73 @@ export const useChatStore = defineStore('chat', {
         throw new Error('Empty message');
       }
 
-      if (this.isSending) {
+      const sendingKey = getSendingKey(payload.chatId);
+
+      if (this.isChatSending(sendingKey)) {
         return {
           chatId: payload.chatId ?? '',
           isNewChat: false,
         };
       }
 
-      this.isSending = true;
+      this.setChatSending(sendingKey, true);
 
       try {
+        const isNewChat = !payload.chatId;
+
+        const userMessageForRequest = buildUserMessage({
+          chatId: payload.chatId ?? '',
+          content,
+          attachments,
+        });
+
+        const messagesForRequest = payload.chatId
+          ? [...(this.messagesByChatId[payload.chatId] ?? []), userMessageForRequest]
+          : [userMessageForRequest];
+
+        const authStore = useAuthStore();
+        const apiKey = authStore.userKey;
+
+        if (!apiKey) {
+          throw new Error('User is not authenticated');
+        }
+
+        const assistantResponse = await sendToLLM(apiKey, messagesForRequest);
+
         let currentChatId = payload.chatId;
-        let isNewChat = false;
 
         if (!currentChatId) {
-          const assistantResponse = await sendToLLM([
-            {
-              id: crypto.randomUUID(),
-              chatId: '',
-              role: 'user',
-              content,
-              createdAt: Date.now(),
-              status: 'sent',
-              attachments,
-            },
-          ]);
-
           const chat = this.createChat();
           currentChatId = chat.id;
-          isNewChat = true;
-
-          this.addUserMessage({
-            chatId: currentChatId,
-            content,
-            attachments,
-          });
-
-          this.addAssistantMessage({
-            chatId: currentChatId,
-            content: assistantResponse,
-          });
-        } else {
-          this.addUserMessage({
-            chatId: currentChatId,
-            content,
-            attachments,
-          });
-
-          const messagesForChat = this.messagesByChatId[currentChatId] ?? [];
-          const assistantResponse = await sendToLLM(messagesForChat);
-
-          this.addAssistantMessage({
-            chatId: currentChatId,
-            content: assistantResponse,
-          });
         }
+
+        this.addUserMessage({
+          chatId: currentChatId,
+          content,
+          attachments,
+        });
+
+        this.addAssistantMessage({
+          chatId: currentChatId,
+          content: assistantResponse,
+        });
+
+        this.persist();
+
         return {
           chatId: currentChatId,
           isNewChat,
         };
       } finally {
-        this.isSending = false;
+        this.setChatSending(sendingKey, false);
       }
     },
+
     async retryAssistantMessage(payload: {
       chatId: string;
       assistantMessageId: string;
     }): Promise<void> {
-      if (this.isSending) return;
+      if (this.isChatSending(payload.chatId)) return;
 
       const messages = this.messagesByChatId[payload.chatId] ?? [];
 
@@ -309,21 +219,31 @@ export const useChatStore = defineStore('chat', {
       }
 
       const retryContext = messages.slice(0, userMessageIndex + 1);
+      const nextMessages = messages.slice(0, assistantMessageIndex);
 
-      this.messagesByChatId[payload.chatId] = messages.slice(0, assistantMessageIndex);
-      this.persist();
-
-      this.isSending = true;
+      this.setChatSending(payload.chatId, true);
 
       try {
-        const assistantResponse = await sendToLLM(retryContext);
+        const authStore = useAuthStore();
+        const apiKey = authStore.userKey;
 
-        this.addAssistantMessage({
-          chatId: payload.chatId,
-          content: assistantResponse,
-        });
+        if (!apiKey) {
+          throw new Error('User is not authenticated');
+        }
+
+        const assistantResponse = await sendToLLM(apiKey, retryContext);
+
+        this.messagesByChatId[payload.chatId] = [
+          ...nextMessages,
+          buildAssistantMessage({
+            chatId: payload.chatId,
+            content: assistantResponse,
+          }),
+        ];
+
+        this.persist();
       } finally {
-        this.isSending = false;
+        this.setChatSending(payload.chatId, false);
       }
     },
   },
