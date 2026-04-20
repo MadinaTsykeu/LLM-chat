@@ -1,5 +1,5 @@
 <template>
-  <div class="composer" :class="[`composer-${variant}`, { 'is-sending': chatStore.isSending }]">
+  <div class="composer" :class="[`composer-${variant}`, { 'is-sending': isSending }]">
     <input
       v-if="variant === 'compact'"
       class="composer-input p-small"
@@ -34,7 +34,7 @@
       size="df"
       class="composer-attach-btn"
       :only-icon="true"
-      :disabled="chatStore.isSending"
+      :disabled="isSending"
       @click="openFilePicker"
     >
       <template #left>
@@ -51,7 +51,7 @@
       size="df"
       class="composer-send-btn"
       @click="trySend"
-      :disabled="chatStore.isSending || !canSend"
+      :disabled="isSending || !canSend"
       :only-icon="variant === 'compact'"
     >
       <template #left>
@@ -106,13 +106,20 @@ const chatStore = useChatStore();
 const route = useRoute();
 const router = useRouter();
 const appError = useAppErrorModal();
+const sendingKey = computed(() => {
+  return (route.params.id as string | undefined) ?? '__new_chat__';
+});
+
+const isSending = computed(() => {
+  return chatStore.isChatSending(sendingKey.value);
+});
 
 const { attachments, fileInputRef, removeAttachment, clearAttachments, addFiles } = useChatFiles();
 
 const isAttachMenuOpen = ref(false);
 
 function openFilePicker() {
-  if (chatStore.isSending) return;
+  if (isSending.value) return;
   isAttachMenuOpen.value = !isAttachMenuOpen.value;
 }
 
@@ -153,7 +160,7 @@ async function trySend() {
   const content = draft.value;
   const messageAttachments = [...attachments.value];
   if (!canSend.value) return;
-  if (chatStore.isSending) return;
+  if (isSending.value) return;
 
   try {
     const result = await chatStore.sendMessage({
