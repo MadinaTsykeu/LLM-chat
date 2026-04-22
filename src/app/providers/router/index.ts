@@ -6,7 +6,6 @@ export enum AppRouteName {
   ChatHome = 'ChatHome',
   Chat = 'Chat',
   Login = 'Login',
-  AuthCallback = 'AuthCallback',
 }
 
 const routes: RouteRecordRaw[] = [
@@ -14,11 +13,6 @@ const routes: RouteRecordRaw[] = [
     path: '/login',
     name: AppRouteName.Login,
     component: () => import('@/pages/login'),
-  },
-  {
-    path: '/auth/callback',
-    name: AppRouteName.AuthCallback,
-    component: () => import('@/pages/auth-callback'),
   },
   {
     path: '/',

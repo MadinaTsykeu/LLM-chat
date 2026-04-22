@@ -10,7 +10,7 @@ export function initAuthGuard(router: Router) {
 
     const isAuth = auth.isAuthenticated;
 
-    const isPublicRoute = to.name === AppRouteName.Login || to.name === AppRouteName.AuthCallback;
+    const isPublicRoute = to.name === AppRouteName.Login;
 
     if (!isAuth && !isPublicRoute) {
       return { name: AppRouteName.Login };

@@ -14,7 +14,6 @@ import {
   buildAssistantMessage,
   buildChatTitleFromMessage,
 } from '@/features/chat/model/chatDomain';
-import { useAuthStore } from '@/shared/stores/auth';
 
 const NEW_CHAT_SENDING_KEY = '__new_chat__';
 
@@ -149,14 +148,7 @@ export const useChatStore = defineStore('chat', {
           ? [...(this.messagesByChatId[payload.chatId] ?? []), userMessageForRequest]
           : [userMessageForRequest];
 
-        const authStore = useAuthStore();
-        const apiKey = authStore.userKey;
-
-        if (!apiKey) {
-          throw new Error('User is not authenticated');
-        }
-
-        const assistantResponse = await sendToLLM(apiKey, messagesForRequest);
+        const assistantResponse = await sendToLLM(messagesForRequest);
 
         let currentChatId = payload.chatId;
 
@@ -224,14 +216,7 @@ export const useChatStore = defineStore('chat', {
       this.setChatSending(payload.chatId, true);
 
       try {
-        const authStore = useAuthStore();
-        const apiKey = authStore.userKey;
-
-        if (!apiKey) {
-          throw new Error('User is not authenticated');
-        }
-
-        const assistantResponse = await sendToLLM(apiKey, retryContext);
+        const assistantResponse = await sendToLLM(retryContext);
 
         this.messagesByChatId[payload.chatId] = [
           ...nextMessages,
