@@ -2,12 +2,13 @@ import { AxiosError } from 'axios';
 import { openRouterHttp } from '../http/openRouterHttp';
 import type { OpenRouterChatCompletionRequest, OpenRouterChatCompletionResponse } from './types';
 
+const API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
 const MODEL = import.meta.env.VITE_OPENROUTER_MODEL;
 
 function assertEnv() {
   const BASE_URL = import.meta.env.VITE_OPENROUTER_BASE_URL;
 
-  if (!MODEL || !BASE_URL) {
+  if (!API_KEY || !MODEL || !BASE_URL) {
     throw new Error('OpenRouter env is not configured. Check .env file.');
   }
 }
@@ -23,14 +24,9 @@ function extractAxiosErrorMessage(err: unknown): string {
 }
 
 export async function createChatCompletion(
-  apiKey: string,
   payload: Omit<OpenRouterChatCompletionRequest, 'model'>
 ): Promise<OpenRouterChatCompletionResponse> {
   assertEnv();
-
-  if (!apiKey) {
-    throw new Error('OpenRouter API key is missing');
-  }
 
   try {
     const res = await openRouterHttp.post<OpenRouterChatCompletionResponse>(
@@ -41,7 +37,7 @@ export async function createChatCompletion(
       },
       {
         headers: {
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: `Bearer ${API_KEY}`,
         },
       }
     );

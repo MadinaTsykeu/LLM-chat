@@ -1,21 +1,25 @@
-import { useRouter } from 'vue-router';
+import type { Router } from 'vue-router';
 import { useAuthStore } from '@/shared/stores/auth';
 import { AppRouteName } from './index';
 
-export const initAuthGuard = () => {
-  const router = useRouter();
-  const authStore = useAuthStore();
+export function initAuthGuard(router: Router) {
+  router.beforeEach(async (to) => {
+    const auth = useAuthStore();
 
-  router.beforeEach((to) => {
-    if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    await auth.fetchMe();
+
+    const isAuth = auth.isAuthenticated;
+
+    const isPublicRoute = to.name === AppRouteName.Login;
+
+    if (!isAuth && !isPublicRoute) {
       return { name: AppRouteName.Login };
     }
 
-    const isLoginLikeRoute =
-      to.name === AppRouteName.Login || to.name === AppRouteName.AuthCallback;
-
-    if (isLoginLikeRoute && authStore.isAuthenticated) {
+    if (isAuth && isPublicRoute) {
       return { name: AppRouteName.ChatHome };
     }
+
+    return true;
   });
-};
+}

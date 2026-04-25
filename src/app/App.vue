@@ -4,10 +4,7 @@
   </div>
 </template>
 
-<script setup>
-import { initAuthGuard } from '@/app/providers/router/guards';
-initAuthGuard();
-</script>
+<script setup></script>
 
 <style>
 .app-container {

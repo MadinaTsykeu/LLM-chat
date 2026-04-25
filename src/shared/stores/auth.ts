@@ -1,24 +1,49 @@
-import { computed } from 'vue';
-import { useStorage } from '@vueuse/core';
+import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
+import { getMe } from '@/shared/api/authApi';
+
+type AuthStatus = 'unknown' | 'authenticated' | 'unauthenticated';
 
 export const useAuthStore = defineStore('auth', () => {
-  const userKey = useStorage<string | null>('llm_chat_app:user_key', null);
+  const user = ref<unknown | null>(null);
+  const status = ref<AuthStatus>('unknown');
+  const isLoading = ref(false);
 
-  const isAuthenticated = computed(() => !!userKey.value);
+  const isAuthenticated = computed(() => status.value === 'authenticated');
 
-  function setUserKey(key: string) {
-    userKey.value = key;
+  async function fetchMe() {
+    if (isLoading.value) return;
+
+    isLoading.value = true;
+
+    try {
+      const data = await getMe();
+
+      user.value = data;
+      status.value = 'authenticated';
+    } catch (err: any) {
+      if (err?.response?.status === 401) {
+        user.value = null;
+        status.value = 'unauthenticated';
+      } else {
+        throw err;
+      }
+    } finally {
+      isLoading.value = false;
+    }
   }
 
-  function clearAuth() {
-    userKey.value = null;
+  function reset() {
+    user.value = null;
+    status.value = 'unauthenticated';
   }
 
   return {
-    userKey,
+    user,
+    status,
+    isLoading,
     isAuthenticated,
-    setUserKey,
-    clearAuth,
+    fetchMe,
+    reset,
   };
 });
