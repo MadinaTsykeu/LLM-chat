@@ -135,7 +135,7 @@ async function handleAttachmentSelect(accept: string) {
 }
 
 const canSend = computed(() => {
-  return draft.value || attachments.value.length;
+  return draft.value.trim().length > 0;
 });
 
 function onTextareaEnter(e: KeyboardEvent) {
@@ -157,7 +157,7 @@ async function handleFileChange(event: Event) {
 }
 
 async function trySend() {
-  const content = draft.value;
+  const content = draft.value.trim();
   const messageAttachments = [...attachments.value];
   if (!canSend.value) return;
   if (isSending.value) return;
