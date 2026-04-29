@@ -25,16 +25,16 @@ import { useSidebarState } from '@/features/sidebar';
 import { useNewChat } from '@/pages/chat/model/useNewChat';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { useChatStore } from '@/features/chat';
+import { useChatsQuery } from '@/features/chat/model/queries/useChatsQuery';
 
 const route = useRoute();
-const chatStore = useChatStore();
+const { data: chats } = useChatsQuery();
 
 const currentChatTitle = computed(() => {
   const id = route.params.id as string | undefined;
   if (!id) return 'Chats';
 
-  const chat = chatStore.chats.find((c) => c.id === id);
+  const chat = chats.value?.find((c) => c.id === id);
   return chat?.title ?? 'Chats';
 });
 

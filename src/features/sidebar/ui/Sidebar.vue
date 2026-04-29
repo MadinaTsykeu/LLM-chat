@@ -45,15 +45,15 @@ import UiButton from '@/shared/ui/UiButton.vue';
 import SidebarHeader from './SidebarHeader.vue';
 import SidebarChatButton from './SidebarChatButton.vue';
 import { useSidebarState } from '../model/useSidebarState';
-import { computed, watch, onMounted } from 'vue';
+import { computed, watch } from 'vue';
 import { useAppBreakpoints } from '@/shared/composable/useAppBreakpoints';
-import { useChatStore } from '@/features/chat';
 import { AppRouteName } from '@/app/providers/router';
 import { useNewChat } from '@/pages/chat/model/useNewChat';
+import { useChatsQuery } from '@/features/chat/model/queries/useChatsQuery';
 
-const chatStore = useChatStore();
+const { data: chats } = useChatsQuery();
 
-const sortedChats = computed(() => [...chatStore.chats].sort((a, b) => b.updatedAt - a.updatedAt));
+const sortedChats = computed(() => chats.value ?? []);
 
 const { startNewChat } = useNewChat();
 
@@ -62,10 +62,6 @@ const { md } = useAppBreakpoints();
 
 const isMobile = computed(() => !md.value);
 const isCollapsedDesktop = computed(() => !isOpen.value && !isMobile.value);
-
-onMounted(() => {
-  void chatStore.loadChats();
-});
 
 const handleChatClick = (navigate: () => void) => {
   if (isMobile.value) {

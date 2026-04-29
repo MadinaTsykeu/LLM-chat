@@ -75,7 +75,6 @@ import { ref, nextTick, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import SendIcon from '@/shared/assets/icons/Send.svg';
 import UiButton from '@/shared/ui/UiButton.vue';
-import { useChatStore } from '@/features/chat';
 import { useAppErrorModal } from '@/shared/ui/modals/app-error-modal';
 import { AppRouteName } from '@/app/providers/router';
 import Paperclip from '@/shared/assets/icons/Paperclip.svg';
@@ -84,6 +83,7 @@ import ChatAttachmentItem from '@/features/chat/ui/ChatAttachmentItem.vue';
 import ChatAttachmentOptions from '@/features/chat/ui/attachments/ChatAttachmentOptions.vue';
 import { ATTACHMENT_ACCEPT } from '@/features/chat/ui/attachments/constants';
 import { getReadableUploadErrorMessage } from '@/features/chat/model/getReadableUploadErrorMessage';
+import { useSendMessageMutation } from '@/features/chat/model/queries/useSendMessageMutation';
 
 const currentType = ref<string | null>(null);
 
@@ -102,17 +102,12 @@ const props = withDefaults(
 
 const draft = ref('');
 const composerFieldRef = ref<HTMLInputElement | HTMLTextAreaElement | null>(null);
-const chatStore = useChatStore();
+const sendMessageMutation = useSendMessageMutation();
 const route = useRoute();
 const router = useRouter();
 const appError = useAppErrorModal();
-const sendingKey = computed(() => {
-  return (route.params.id as string | undefined) ?? '__new_chat__';
-});
 
-const isSending = computed(() => {
-  return chatStore.isChatSending(sendingKey.value);
-});
+const isSending = computed(() => sendMessageMutation.isPending.value);
 
 const { attachments, fileInputRef, removeAttachment, clearAttachments, addFiles } = useChatFiles();
 
@@ -163,11 +158,11 @@ async function trySend() {
   if (isSending.value) return;
 
   try {
-    const result = await chatStore.sendMessage({
-      chatId: route.params.id as string | undefined,
-      content,
-      attachments: messageAttachments,
-    });
+    const result = await sendMessageMutation.mutateAsync({
+  chatId: route.params.id as string | undefined,
+  content,
+  attachments: messageAttachments,
+});
 
     if (result.isNewChat) {
       await router.push({
