@@ -13,22 +13,24 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { useChatStore } from '@/features/chat';
 import ChatComposer from './ChatComposer.vue';
 import ChatMessageItem from './ChatMessageItem.vue';
 import { dayKey, formatDividerText } from '@/shared/utils/date';
+import { useChatMessagesQuery } from '@/features/chat/model/queries/useChatMessagesQuery';
 
 const route = useRoute();
-const chatStore = useChatStore();
+
+const chatId = computed(() => {
+  const id = route.params.id;
+
+  return typeof id === 'string' ? id : '';
+});
 
 const feedContainerRef = ref<HTMLElement | null>(null);
 
-const chatId = computed(() => route.params.id as string | undefined);
+const { data: queryMessages } = useChatMessagesQuery(chatId);
 
-const messages = computed(() => {
-  const id = chatId.value;
-  return id ? (chatStore.messagesByChatId[id] ?? []) : [];
-});
+const messages = computed(() => queryMessages.value ?? []);
 
 watch(
   () => messages.value.length,

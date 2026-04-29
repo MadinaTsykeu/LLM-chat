@@ -47,11 +47,13 @@ import SidebarChatButton from './SidebarChatButton.vue';
 import { useSidebarState } from '../model/useSidebarState';
 import { computed, watch } from 'vue';
 import { useAppBreakpoints } from '@/shared/composable/useAppBreakpoints';
-import { useChatStore } from '@/features/chat';
 import { AppRouteName } from '@/app/providers/router';
 import { useNewChat } from '@/pages/chat/model/useNewChat';
+import { useChatsQuery } from '@/features/chat/model/queries/useChatsQuery';
 
-const sortedChats = computed(() => [...chatStore.chats].sort((a, b) => b.updatedAt - a.updatedAt));
+const { data: chats } = useChatsQuery();
+
+const sortedChats = computed(() => chats.value ?? []);
 
 const { startNewChat } = useNewChat();
 
@@ -77,8 +79,6 @@ watch(
   },
   { immediate: true }
 );
-
-const chatStore = useChatStore();
 </script>
 
 <style scoped>
