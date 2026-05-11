@@ -159,10 +159,10 @@ async function trySend() {
 
   try {
     const result = await sendMessageMutation.mutateAsync({
-  chatId: route.params.id as string | undefined,
-  content,
-  attachments: messageAttachments,
-});
+      chatId: route.params.id as string | undefined,
+      content,
+      attachments: messageAttachments,
+    });
 
     if (result.isNewChat) {
       await router.push({

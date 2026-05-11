@@ -1,6 +1,14 @@
 <template>
   <div class="container" ref="feedContainerRef">
-    <template v-for="(message, index) in messages" :key="message.id">
+    <div v-if="isLoading" class="feed-state d-2">Loading messages...</div>
+
+    <div v-else-if="isError" class="feed-state d-2">
+      {{ error instanceof Error ? error.message : 'Failed to load messages' }}
+    </div>
+
+    <div v-else-if="!messages.length" class="feed-state d-2">No messages</div>
+
+    <template v-else v-for="(message, index) in messages" :key="message.id">
       <div v-if="shouldShowDivider(index)" class="divider d-1">
         {{ formatDividerText(message.createdAt) }}
       </div>
@@ -28,13 +36,15 @@ const chatId = computed(() => {
 
 const feedContainerRef = ref<HTMLElement | null>(null);
 
-const { data: queryMessages } = useChatMessagesQuery(chatId);
+const { data: queryMessages, isLoading, isError, error } = useChatMessagesQuery(chatId);
 
 const messages = computed(() => queryMessages.value ?? []);
 
 watch(
   () => messages.value.length,
   async () => {
+    if (!messages.value.length) return;
+
     await nextTick();
 
     const container = feedContainerRef.value;
@@ -65,6 +75,12 @@ function shouldShowDivider(index: number): boolean {
   padding: 0 16px;
   box-sizing: border-box;
   overflow-y: auto;
+}
+
+.feed-state {
+  padding: 24px 0;
+  text-align: center;
+  color: var(--neutral-500);
 }
 
 .divider {

@@ -5,30 +5,38 @@
         <LeftIcon />
       </template>
     </UiButton>
-    <h3 class="main-header-button d-2" v-if="md">{{ currentChatTitle }}</h3>
+
+    <h3 v-if="md" class="main-header-button d-2">
+      <span v-if="isLoading">Loading...</span>
+      <span v-else-if="isError">
+        {{ error instanceof Error ? error.message : 'Failed to load chats' }}
+      </span>
+      <span v-else>{{ currentChatTitle }}</span>
+    </h3>
+
     <UiButton variant="primary" size="sm" :only-icon="!md" @click="startNewChat">
       <template #left>
         <ElementIcon />
       </template>
 
-      <span v-if="md" class="btn-text"> New Chat </span>
+      <span v-if="md" class="btn-text">New Chat</span>
     </UiButton>
   </header>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 import ElementIcon from '@/shared/assets/icons/Element.svg';
-import UiButton from '@/shared/ui/UiButton.vue';
 import LeftIcon from '@/shared/assets/icons/Left.svg';
+import UiButton from '@/shared/ui/UiButton.vue';
 import { useAppBreakpoints } from '@/shared/composable/useAppBreakpoints';
 import { useSidebarState } from '@/features/sidebar';
 import { useNewChat } from '@/pages/chat/model/useNewChat';
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
 import { useChatsQuery } from '@/features/chat/model/queries/useChatsQuery';
 
 const route = useRoute();
-const { data: chats } = useChatsQuery();
+const { data: chats, isLoading, isError, error } = useChatsQuery();
 
 const currentChatTitle = computed(() => {
   const id = route.params.id as string | undefined;
@@ -39,7 +47,6 @@ const currentChatTitle = computed(() => {
 });
 
 const { startNewChat } = useNewChat();
-
 const { open } = useSidebarState();
 const { md } = useAppBreakpoints();
 </script>

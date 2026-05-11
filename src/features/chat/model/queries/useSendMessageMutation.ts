@@ -1,24 +1,21 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
+import { useChatStore } from '@/features/chat/model/chatStore';
 import type { TAttachment, TChat, TChatMessage } from '@/features/chat';
-import {
-  createChat as createBackendChat,
-  sendChatMessage,
-} from '@/shared/api/chatApi';
+import { createChat as createBackendChat, sendChatMessage } from '@/shared/api/chatApi';
 import {
   mapBackendChatToChat,
   mapBackendMessageToChatMessage,
 } from '@/features/chat/model/chatMappers';
+import { buildChatTitleFromMessage } from '../chatDomain';
 import { chatQueryKeys } from './chatQueryKeys';
-
-const DEFAULT_MODEL = import.meta.env.VITE_OPENROUTER_MODEL;
-
-function createClientMessageId(): string {
-  if (crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
+import {
+  DEFAULT_MODEL,
+  createClientMessageId,
+  getSendingKey,
+  upsertChatInList,
+  patchChatInList,
+  appendChatMessages,
+} from '../chatMutationsHelpers';
 
 type TSendMessageMutationPayload = {
   chatId?: string;
@@ -26,11 +23,28 @@ type TSendMessageMutationPayload = {
   attachments?: TAttachment[];
 };
 
+type TSendMessageMutationResult = {
+  chatId: string;
+  isNewChat: boolean;
+  chat?: TChat;
+  userMessage: TChatMessage;
+  assistantMessage: TChatMessage;
+};
+
+function shouldReplaceChatTitle(title?: string | null): boolean {
+  const normalized = title?.trim();
+
+  return !normalized || /^new chat$/i.test(normalized);
+}
+
 export function useSendMessageMutation() {
   const queryClient = useQueryClient();
+  const chatStore = useChatStore();
 
   return useMutation({
-    mutationFn: async (payload: TSendMessageMutationPayload) => {
+    mutationFn: async (
+      payload: TSendMessageMutationPayload
+    ): Promise<TSendMessageMutationResult> => {
       const content = payload.content.trim();
       const attachments = payload.attachments ?? [];
 
@@ -41,19 +55,15 @@ export function useSendMessageMutation() {
       const isNewChat = !payload.chatId;
 
       let currentChatId = payload.chatId;
+      let createdChat: TChat | undefined;
 
       if (!currentChatId) {
         const createChatResponse = await createBackendChat({
           title: null,
         });
 
-        const chat = mapBackendChatToChat(createChatResponse.data);
-
-        currentChatId = chat.id;
-
-        queryClient.setQueryData<TChat[]>(chatQueryKeys.lists(), (oldChats = []) => {
-          return [chat, ...oldChats];
-        });
+        createdChat = mapBackendChatToChat(createChatResponse.data);
+        currentChatId = createdChat.id;
       }
 
       const response = await sendChatMessage({
@@ -64,26 +74,45 @@ export function useSendMessageMutation() {
         attachments,
       });
 
-      const userMessage = mapBackendMessageToChatMessage(response.data.userMessage);
-      const assistantMessage = mapBackendMessageToChatMessage(
-        response.data.assistantMessage
-      );
-
-      queryClient.setQueryData<TChatMessage[]>(
-        chatQueryKeys.messages(currentChatId),
-        (oldMessages = []) => {
-          return [...oldMessages, userMessage, assistantMessage];
-        }
-      );
-
-      await queryClient.invalidateQueries({
-        queryKey: chatQueryKeys.lists(),
-      });
-
       return {
         chatId: currentChatId,
         isNewChat,
+        chat: createdChat,
+        userMessage: mapBackendMessageToChatMessage(response.data.userMessage),
+        assistantMessage: mapBackendMessageToChatMessage(response.data.assistantMessage),
       };
+    },
+
+    onMutate: (payload) => {
+      chatStore.setChatSending(getSendingKey(payload.chatId), true);
+    },
+
+    onSuccess: (result, payload) => {
+      const generatedTitle = buildChatTitleFromMessage(payload.content);
+      const now = Date.now();
+
+      if (result.chat) {
+        upsertChatInList(queryClient, {
+          ...result.chat,
+          title: shouldReplaceChatTitle(result.chat.title) ? generatedTitle : result.chat.title,
+          updatedAt: now,
+        });
+      } else {
+        patchChatInList(queryClient, result.chatId, {
+          title: generatedTitle,
+          updatedAt: now,
+        });
+      }
+
+      appendChatMessages(queryClient, result.chatId, [result.userMessage, result.assistantMessage]);
+
+      queryClient.invalidateQueries({
+        queryKey: chatQueryKeys.lists(),
+      });
+    },
+
+    onSettled: (_data, _error, payload) => {
+      chatStore.setChatSending(getSendingKey(payload.chatId), false);
     },
   });
 }

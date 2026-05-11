@@ -33,12 +33,7 @@
           </div>
         </div>
         <div class="message-actions" v-if="showActions">
-          <button
-            type="button"
-            class="copy-btn"
-            :disabled="isRetrying"
-            @click="handleRetry"
-          >
+          <button type="button" class="copy-btn" :disabled="isRetrying" @click="handleRetry">
             <Reload />
           </button>
           <button

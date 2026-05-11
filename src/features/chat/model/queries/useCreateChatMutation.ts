@@ -1,8 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
-import type { TChat } from '@/features/chat';
 import { createChat as createBackendChat } from '@/shared/api/chatApi';
 import { mapBackendChatToChat } from '@/features/chat/model/chatMappers';
-import { chatQueryKeys } from './chatQueryKeys';
+import { upsertChatInList, setEmptyChatMessages } from '../chatMutationsHelpers';
 
 type TCreateChatMutationPayload = {
   title?: string | null;
@@ -17,13 +16,12 @@ export function useCreateChatMutation() {
         title: payload?.title ?? null,
       });
 
-      const chat = mapBackendChatToChat(response.data);
+      return mapBackendChatToChat(response.data);
+    },
 
-      queryClient.setQueryData<TChat[]>(chatQueryKeys.lists(), (oldChats = []) => {
-        return [chat, ...oldChats];
-      });
-
-      return chat;
+    onSuccess: (chat) => {
+      upsertChatInList(queryClient, chat);
+      setEmptyChatMessages(queryClient, chat.id);
     },
   });
 }

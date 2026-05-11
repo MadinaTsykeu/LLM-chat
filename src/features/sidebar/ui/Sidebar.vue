@@ -13,7 +13,16 @@
       <h2 class="sidebar-title d-1">chat history</h2>
 
       <div class="sidebar-chat-list">
+        <div v-if="isLoading" class="sidebar-state d-2">Loading chats...</div>
+
+        <div v-else-if="isError" class="sidebar-state d-2">
+          {{ error instanceof Error ? error.message : 'Failed to load chats' }}
+        </div>
+
+        <div v-else-if="!sortedChats.length" class="sidebar-state d-2">No chats</div>
+
         <RouterLink
+          v-else
           v-for="chat in sortedChats"
           :key="chat.id"
           :to="{ name: AppRouteName.Chat, params: { id: chat.id } }"
@@ -40,18 +49,18 @@
 </template>
 
 <script setup lang="ts">
+import { computed, watch } from 'vue';
+import { useAppBreakpoints } from '@/shared/composable/useAppBreakpoints';
+import { AppRouteName } from '@/app/providers/router';
+import { useChatsQuery } from '@/features/chat/model/queries/useChatsQuery';
+import { useNewChat } from '@/pages/chat/model/useNewChat';
+import { useSidebarState } from '../model/useSidebarState';
 import ElementIcon from '@/shared/assets/icons/Element.svg';
 import UiButton from '@/shared/ui/UiButton.vue';
 import SidebarHeader from './SidebarHeader.vue';
 import SidebarChatButton from './SidebarChatButton.vue';
-import { useSidebarState } from '../model/useSidebarState';
-import { computed, watch } from 'vue';
-import { useAppBreakpoints } from '@/shared/composable/useAppBreakpoints';
-import { AppRouteName } from '@/app/providers/router';
-import { useNewChat } from '@/pages/chat/model/useNewChat';
-import { useChatsQuery } from '@/features/chat/model/queries/useChatsQuery';
 
-const { data: chats } = useChatsQuery();
+const { data: chats, isLoading, isError, error } = useChatsQuery();
 
 const sortedChats = computed(() => chats.value ?? []);
 
@@ -114,6 +123,12 @@ watch(
   margin-top: 24.5px;
   display: flex;
   flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-state {
+  padding: 10px;
+  color: var(--neutral-500);
 }
 
 .sidebar-bottom {
