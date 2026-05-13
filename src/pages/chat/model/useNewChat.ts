@@ -4,8 +4,10 @@ import { AppRouteName } from '@/app/providers/router';
 export function useNewChat() {
   const router = useRouter();
 
-  function startNewChat() {
-    router.push({ name: AppRouteName.ChatHome });
+  async function startNewChat() {
+    await router.push({
+      name: AppRouteName.ChatHome,
+    });
   }
 
   return {

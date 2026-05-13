@@ -8,6 +8,10 @@
 <script setup lang="ts">
 import { MainHeader, ChatFeed } from '@/features/chat';
 import { useAppHotkeys } from '@/shared/composable/useAppHotkeys';
+import { useRoute } from 'vue-router';
+import { computed } from 'vue';
+
+const route = useRoute();
 
 useAppHotkeys();
 </script>

@@ -13,6 +13,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@tanstack/vue-query": "^5.100.5",
     "@vueuse/core": "^14.2.0",
     "axios": "^1.13.5",
     "date-fns": "^4.1.0",

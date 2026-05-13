@@ -33,11 +33,14 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/chat').then((m) => m.ChatPage),
         beforeEnter(to) {
           const chatStore = useChatStore();
+          const chatId = String(to.params.id);
 
-          const exists = chatStore.chats.some((c) => c.id === to.params.id);
+          if (chatStore.hasLoadedChats) {
+            const exists = chatStore.chats.some((c) => c.id === chatId);
 
-          if (!exists) {
-            return { name: AppRouteName.ChatHome };
+            if (!exists) {
+              return { name: AppRouteName.ChatHome };
+            }
           }
         },
       },

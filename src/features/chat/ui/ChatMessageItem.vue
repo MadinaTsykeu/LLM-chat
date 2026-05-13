@@ -33,19 +33,14 @@
           </div>
         </div>
         <div class="message-actions" v-if="showActions">
-          <button
-            type="button"
-            class="copy-btn"
-            :disabled="chatStore.isChatSending(message.chatId)"
-            @click="handleRetry"
-          >
+          <button type="button" class="copy-btn" :disabled="isRetrying" @click="handleRetry">
             <Reload />
           </button>
           <button
             type="button"
             @click="handleCopy"
             :class="['copy-btn', { 'copy-btn-active': isCopied }]"
-            :disabled="chatStore.isChatSending(message.chatId)"
+            :disabled="isRetrying"
           >
             <Copy></Copy>
           </button>
@@ -65,9 +60,11 @@ import { formatTime } from '@/shared/utils/date';
 import ChatAttachmentItem from '@/features/chat/ui/ChatAttachmentItem.vue';
 import { computed, ref } from 'vue';
 import { copyText } from '@/shared/utils/copyText';
-import { useChatStore } from '@/features/chat/model/chatStore';
+import { useRetryMessageMutation } from '@/features/chat/model/queries/useRetryMessageMutation';
 
-const chatStore = useChatStore();
+const retryMessageMutation = useRetryMessageMutation();
+
+const isRetrying = computed(() => retryMessageMutation.isPending.value);
 
 const { message } = defineProps<{ message: TChatMessage }>();
 
@@ -97,7 +94,7 @@ async function handleRetry() {
   if (!showActions.value) return;
 
   try {
-    await chatStore.retryAssistantMessage({
+    await retryMessageMutation.mutateAsync({
       chatId: message.chatId,
       assistantMessageId: message.id,
     });
