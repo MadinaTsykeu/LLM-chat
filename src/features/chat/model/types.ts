@@ -44,9 +44,3 @@ export type TChat = {
   createdAt: number;
   updatedAt: number;
 };
-
-export type TStorageState = {
-  version: 2;
-  chats: TChat[];
-  messagesByChatId: Record<string, TChatMessage[]>;
-};

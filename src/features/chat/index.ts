@@ -8,7 +8,6 @@ export { useChatStore } from './model/chatStore';
 export type {
   TChat,
   TChatMessage,
-  TStorageState,
   TMessageStatus,
   TAttachment,
   TBaseMessage,
