@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
-import { useChatStore } from '@/features/chat/model/chatStore';
 import type { TChatMessage } from '@/features/chat';
 import { sendChatMessage } from '@/shared/api/chatApi';
 import { mapBackendMessageToChatMessage } from '@/features/chat/model/chatMappers';
@@ -8,7 +7,6 @@ import {
   DEFAULT_MODEL,
   createClientMessageId,
   findOriginalUserMessage,
-  getSendingKey,
   replaceAssistantMessage,
 } from '../chatMutationsHelpers';
 
@@ -23,7 +21,6 @@ type TRetryMessageMutationResult = {
 
 export function useRetryMessageMutation() {
   const queryClient = useQueryClient();
-  const chatStore = useChatStore();
 
   return useMutation({
     mutationFn: async (
@@ -51,10 +48,6 @@ export function useRetryMessageMutation() {
       };
     },
 
-    onMutate: (payload) => {
-      chatStore.setChatSending(getSendingKey(payload.chatId), true);
-    },
-
     onSuccess: (result, payload) => {
       replaceAssistantMessage(
         queryClient,
@@ -66,10 +59,6 @@ export function useRetryMessageMutation() {
       queryClient.invalidateQueries({
         queryKey: chatQueryKeys.lists(),
       });
-    },
-
-    onSettled: (_data, _error, payload) => {
-      chatStore.setChatSending(getSendingKey(payload.chatId), false);
     },
   });
 }

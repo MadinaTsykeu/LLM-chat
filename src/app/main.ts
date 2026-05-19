@@ -7,9 +7,8 @@ import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from './providers/router';
 import { initAuthGuard } from '@/app/providers/router/guards';
-import { VueQueryPlugin, QueryClient } from '@tanstack/vue-query';
-
-const queryClient = new QueryClient();
+import { VueQueryPlugin } from '@tanstack/vue-query';
+import { queryClient } from '@/app/queryClient';
 
 const app = createApp(App);
 
