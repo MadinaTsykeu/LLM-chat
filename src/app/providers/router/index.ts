@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import { useChatStore } from '@/features/chat';
+import { queryClient } from '@/app/queryClient';
+import { chatQueryKeys } from '@/features/chat/model/queries/chatQueryKeys';
+import { fetchChatsList } from '@/features/chat/model/queries/chatQueryFns';
 
 export enum AppRouteName {
   BaseLayout = 'BaseLayout',
@@ -31,16 +33,18 @@ const routes: RouteRecordRaw[] = [
         name: AppRouteName.Chat,
         meta: { requiresAuth: true },
         component: () => import('@/pages/chat').then((m) => m.ChatPage),
-        beforeEnter(to) {
-          const chatStore = useChatStore();
+        beforeEnter: async (to) => {
           const chatId = String(to.params.id);
 
-          if (chatStore.hasLoadedChats) {
-            const exists = chatStore.chats.some((c) => c.id === chatId);
+          const chats = await queryClient.fetchQuery({
+            queryKey: chatQueryKeys.lists(),
+            queryFn: fetchChatsList,
+          });
 
-            if (!exists) {
-              return { name: AppRouteName.ChatHome };
-            }
+          const exists = chats.some((chat) => chat.id === chatId);
+
+          if (!exists) {
+            return { name: AppRouteName.ChatHome };
           }
         },
       },

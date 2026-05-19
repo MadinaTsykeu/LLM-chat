@@ -12,10 +12,6 @@ export function createClientMessageId(): string {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-export function getSendingKey(chatId?: string): string {
-  return chatId ?? '__new_chat__';
-}
-
 export function findOriginalUserMessage(
   messages: TChatMessage[],
   assistantMessageId: string

@@ -1,4 +1,3 @@
-import { computed } from 'vue';
 import { useQuery } from '@tanstack/vue-query';
 import { getChats } from '@/shared/api/chatApi';
 import { mapBackendChatToChat } from '@/features/chat/model/chatMappers';

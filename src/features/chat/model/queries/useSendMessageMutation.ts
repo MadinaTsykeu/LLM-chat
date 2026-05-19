@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
-import { useChatStore } from '@/features/chat/model/chatStore';
 import type { TAttachment, TChat, TChatMessage } from '@/features/chat';
 import { createChat as createBackendChat, sendChatMessage } from '@/shared/api/chatApi';
 import {
@@ -11,7 +10,6 @@ import { chatQueryKeys } from './chatQueryKeys';
 import {
   DEFAULT_MODEL,
   createClientMessageId,
-  getSendingKey,
   upsertChatInList,
   patchChatInList,
   appendChatMessages,
@@ -39,7 +37,6 @@ function shouldReplaceChatTitle(title?: string | null): boolean {
 
 export function useSendMessageMutation() {
   const queryClient = useQueryClient();
-  const chatStore = useChatStore();
 
   return useMutation({
     mutationFn: async (
@@ -83,10 +80,6 @@ export function useSendMessageMutation() {
       };
     },
 
-    onMutate: (payload) => {
-      chatStore.setChatSending(getSendingKey(payload.chatId), true);
-    },
-
     onSuccess: (result, payload) => {
       const generatedTitle = buildChatTitleFromMessage(payload.content);
       const now = Date.now();
@@ -109,10 +102,6 @@ export function useSendMessageMutation() {
       queryClient.invalidateQueries({
         queryKey: chatQueryKeys.lists(),
       });
-    },
-
-    onSettled: (_data, _error, payload) => {
-      chatStore.setChatSending(getSendingKey(payload.chatId), false);
     },
   });
 }
